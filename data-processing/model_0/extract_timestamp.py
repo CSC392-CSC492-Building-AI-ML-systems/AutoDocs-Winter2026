@@ -1,7 +1,7 @@
-import xml.etree.ElementTree as ET
 import os
+import re
 
-def extract_event_timestamps(parsed_dir="parsed_inputs", result_dir="timestamp-output"):
+def extract_event_timestamps_raw(parsed_dir="parsed_inputs", result_dir="timestamp-output"):
     os.makedirs(result_dir, exist_ok=True)
     
     if not os.path.exists(parsed_dir):
@@ -20,42 +20,49 @@ def extract_event_timestamps(parsed_dir="parsed_inputs", result_dir="timestamp-o
         out_filename = f"{base_name}.time.txt"
         out_path = os.path.join(result_dir, out_filename)
         
-        extracted_count = 0
-        
         try:
-            with open(out_path, 'w') as out_f:
-                context = ET.iterparse(xml_path, events=('start',))
+            extracted_count = 0
+            
+            with open(xml_path, 'r', encoding='utf-8', errors='ignore') as in_f, \
+                 open(out_path, 'w') as out_f:
+                
+                recording_started = False
                 looking_for_timestamp = False
                 
-                # We put the iteration inside its own try/except block
-                # to catch incomplete XML files gracefully.
-                try:
-                    for event_type, elem in context:
-                        if elem.tag == 'event':
-                            looking_for_timestamp = True
+                for line in in_f:
+                    # 1. Ignore all garbage at the top of the file. 
+                    # Only start looking once the official recording tag appears.
+                    if '<recording' in line:
+                        recording_started = True
+                        continue
                         
-                        elif looking_for_timestamp:
-                            ts = elem.get('timestamp')
-                            if ts:
-                                out_f.write(f"{ts}\n")
-                                extracted_count += 1
-                                looking_for_timestamp = False
+                    if not recording_started:
+                        continue
                         
-                        elem.clear()
+                    # 2. We are in the clean part of the file. Look for event chunks.
+                    if '<event' in line:
+                        looking_for_timestamp = True
+                        continue
                         
-                except ET.ParseError as pe:
-                    # The script hits the end of an incomplete file, catches the error,
-                    # and keeps the timestamps it already successfully extracted.
-                    print(f"    [!] Note: '{xml_filename}' ended abruptly ({pe}). Recovered {extracted_count} timestamps.")
+                    # 3. Grab the very next timestamp we see
+                    if looking_for_timestamp:
+                        # Regex finds timestamp="xxx" safely without needing valid XML
+                        match = re.search(r'timestamp="([\d\.]+)"', line)
+                        if match:
+                            ts = match.group(1)
+                            out_f.write(f"{ts}\n")
+                            extracted_count += 1
+                            # Reset until we see the next <event>
+                            looking_for_timestamp = False
             
             print(f"  > Success: Extracted {extracted_count} timestamps into '{out_filename}'")
             processed_count += 1
             
         except Exception as e:
-            # Catches other non-parsing errors (like permission issues)
             print(f"  ! Error processing '{xml_filename}': {e}")
 
     print(f"\nExtraction complete! Processed {processed_count} files.")
+    print(f"Check the '{result_dir}' folder.")
 
 if __name__ == "__main__":
-    extract_event_timestamps()
+    extract_event_timestamps_raw()
