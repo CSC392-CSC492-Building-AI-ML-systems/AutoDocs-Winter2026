@@ -1,6 +1,5 @@
-// Auth utilities — JWT stored in sessionStorage (cleared on tab close)
+// Client auth utilities for cookie-based sessions.
 
-const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
 
 export interface AuthUser {
@@ -9,15 +8,6 @@ export interface AuthUser {
   name: string;
   avatarUrl?: string;
   createdAt: string;
-}
-
-export function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return sessionStorage.getItem(TOKEN_KEY);
-}
-
-export function setToken(token: string): void {
-  sessionStorage.setItem(TOKEN_KEY, token);
 }
 
 export function getUser(): AuthUser | null {
@@ -36,26 +26,32 @@ export function setUser(user: AuthUser): void {
 }
 
 export function clearAuth(): void {
-  sessionStorage.removeItem(TOKEN_KEY);
   sessionStorage.removeItem(USER_KEY);
 }
 
-export function isAuthenticated(): boolean {
-  return !!getToken();
-}
+export async function getSessionUser(): Promise<AuthUser | null> {
+  const res = await fetch('/api/auth/me', {
+    method: 'GET',
+    credentials: 'include',
+    cache: 'no-store',
+  });
 
-// Decode JWT payload without verification (verification happens server-side)
-export function decodeToken(token: string): Record<string, unknown> | null {
-  try {
-    const payload = token.split('.')[1];
-    return JSON.parse(atob(payload));
-  } catch {
+  if (!res.ok) {
+    clearAuth();
     return null;
   }
+
+  const data = (await res.json()) as { user?: AuthUser };
+  if (!data.user) return null;
+
+  setUser(data.user);
+  return data.user;
 }
 
-export function isTokenExpired(token: string): boolean {
-  const decoded = decodeToken(token);
-  if (!decoded || typeof decoded.exp !== 'number') return true;
-  return Date.now() / 1000 > decoded.exp;
+export async function logoutSession(): Promise<void> {
+  await fetch('/api/auth/logout', {
+    method: 'POST',
+    credentials: 'include',
+  });
+  clearAuth();
 }

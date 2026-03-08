@@ -1,10 +1,21 @@
+"use client";
+
 import { Home, Upload, Settings, User, LogOut, FileText } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { logoutSession } from '@/app/lib/auth';
 
 interface SidebarProps {
   onNavigate?: (view: string) => void;
 }
 
 export function Sidebar({ onNavigate }: SidebarProps) {
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await logoutSession();
+    router.push('/login');
+  };
+
   return (
     <div className="w-64 h-screen bg-sidebar border-r border-sidebar-border flex flex-col">
       {/* Logo/Header */}
@@ -51,7 +62,10 @@ export function Sidebar({ onNavigate }: SidebarProps) {
             <Settings className="w-5 h-5" />
             <span>Settings</span>
           </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
+          <button
+            onClick={() => void handleSignOut()}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+          >
             <LogOut className="w-5 h-5" />
             <span>Sign Out</span>
           </button>

@@ -1,8 +1,60 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Local Postgres Setup
+
+The project includes a Docker Postgres service and init SQL scripts at `db/init/001_init.sql` and `db/init/002_sessions.sql`.
+On first startup of a fresh DB volume, Postgres automatically creates the `users` and `sessions` tables.
+
+```bash
+npm run db:up
+```
+
+If you already started Postgres before adding/changing init SQL, reset the volume once:
+
+```bash
+npm run db:reset
+```
+
+Then verify:
+
+```bash
+docker exec -it autodocs-postgres psql -U autodocs -d autodocs_db -c "\d users"
+docker exec -it autodocs-postgres psql -U autodocs -d autodocs_db -c "\d sessions"
+```
+
+## Auth Model
+
+Authentication uses server-managed sessions with HttpOnly cookies:
+
+- `access_token`: short-lived JWT for request authentication.
+- `refresh_token`: longer-lived JWT tied to a row in `sessions`.
+
+Server routes:
+
+- `POST /api/auth/signup`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+- `POST /api/auth/refresh`
+- `POST /api/auth/logout`
+
+Required env vars in `.env.local`:
+
+```env
+DATABASE_URL="postgresql://autodocs:autodocs_pass@localhost:5432/autodocs_db"
+JWT_SECRET="paste-generated-value-here"
+```
+
+Generate a strong local secret with:
+
+```bash
+openssl rand -base64 64
+```
+
+Copy that output into `JWT_SECRET` in `.env.local`.
+
 ## Getting Started
 
-First, run the development server:
+From the `autodocs-app` folder, run the development server:
 
 ```bash
 npm run dev
