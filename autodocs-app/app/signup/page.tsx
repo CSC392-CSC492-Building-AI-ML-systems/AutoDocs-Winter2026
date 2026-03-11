@@ -2,35 +2,23 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { setToken, setUser, isAuthenticated, getToken, isTokenExpired, clearAuth } from '@/app/lib/auth';
+import { getSessionUser, setUser } from '@/app/lib/auth';
 
-// -- Simulated API call --
-// Replace with your real backend endpoint.
-async function signupRequest(name: string, email: string, password: string): Promise<{ token: string; user: { id: string; email: string; name: string; createdAt: string } }> {
-  // TODO: replace with real API call, e.g.:
-  // const res = await fetch('/api/auth/signup', { method: 'POST', body: JSON.stringify({ name, email, password }) });
-  // if (!res.ok) throw new Error((await res.json()).message ?? 'Signup failed');
-  // return res.json();
+async function signupRequest(name: string, email: string, password: string): Promise<{ user: { id: string; email: string; name: string; createdAt: string } }> {
+  const res = await fetch('/api/auth/signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ name, email, password }),
+  });
 
-  await new Promise((r) => setTimeout(r, 1400));
+  const data = (await res.json()) as { message?: string; user?: { id: string; email: string; name: string; createdAt: string } };
 
-  if (email === 'taken@example.com') {
-    throw new Error('An account with this email already exists.');
+  if (!res.ok || !data.user) {
+    throw new Error(data.message ?? 'Signup failed');
   }
 
-  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const payload = btoa(JSON.stringify({
-    sub: 'usr_' + Math.random().toString(36).slice(2, 8),
-    email,
-    name,
-    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 8,
-  }));
-  const sig = btoa('mock-signature');
-
-  return {
-    token: `${header}.${payload}.${sig}`,
-    user: { id: 'usr_new', email, name, createdAt: new Date().toISOString() },
-  };
+  return { user: data.user };
 }
 
 function validatePassword(pw: string): string | null {
@@ -51,13 +39,15 @@ export default function SignupPage() {
 
   useEffect(() => {
     setMounted(true);
-    const token = getToken();
-    if (token && isAuthenticated() && !isTokenExpired(token)) {
-      router.replace('/home');
-      return;
-    }
-    if (token) clearAuth();
-    setTimeout(() => inputRef.current?.focus(), 400);
+    const run = async () => {
+      const user = await getSessionUser();
+      if (user) {
+        router.replace('/home');
+        return;
+      }
+      setTimeout(() => inputRef.current?.focus(), 400);
+    };
+    void run();
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,8 +63,7 @@ export default function SignupPage() {
     setError('');
     setLoading(true);
     try {
-      const { token, user } = await signupRequest(name, email, password);
-      setToken(token);
+      const { user } = await signupRequest(name, email, password);
       setUser({ ...user, avatarUrl: undefined });
       router.push('/home');
     } catch (err) {

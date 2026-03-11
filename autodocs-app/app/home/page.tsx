@@ -3,7 +3,9 @@ import { Sidebar } from '@/app/components/Sidebar';
 import { UploadTile } from '@/app/components/UploadTile';
 import { SessionTile } from '@/app/components/SessionTile';
 import { SessionDetailModal } from '@/app/components/SessionDetailModal';
-import { useState } from 'react';
+import { getSessionUser } from '@/app/lib/auth';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 // Mock session data
 const mockSessions = [
@@ -52,8 +54,22 @@ const mockSessions = [
 ];
 
 export default function App() {
+  const router = useRouter();
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [selectedSession, setSelectedSession] = useState<typeof mockSessions[0] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    const run = async () => {
+      const user = await getSessionUser();
+      if (!user) {
+        router.replace('/login');
+        return;
+      }
+      setCheckingAuth(false);
+    };
+    void run();
+  }, [router]);
 
   const handleSessionClick = (session: typeof mockSessions[0]) => {
     setSelectedSession(session);
@@ -64,6 +80,17 @@ export default function App() {
     setIsModalOpen(false);
     setSelectedSession(null);
   };
+
+  if (checkingAuth) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-6 h-6 border-2 border-foreground border-t-transparent rounded-full animate-spin opacity-40" />
+          <span className="text-muted-foreground text-sm font-mono">Checking session...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-background">

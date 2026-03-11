@@ -2,34 +2,23 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { setToken, setUser, isAuthenticated, getToken, isTokenExpired, clearAuth } from '@/app/lib/auth';
+import { getSessionUser, setUser } from '@/app/lib/auth';
 
-// -- Simulated API call --
-// Replace the body of this function with your real fetch() to your backend.
-async function loginRequest(email: string, password: string): Promise<{ token: string; user: { id: string; email: string; name: string; createdAt: string } }> {
-  // TODO: replace with real API call, e.g.:
-  // const res = await fetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
-  // if (!res.ok) throw new Error((await res.json()).message ?? 'Login failed');
-  // return res.json();
+async function loginRequest(email: string, password: string): Promise<{ user: { id: string; email: string; name: string; createdAt: string } }> {
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ email, password }),
+  });
 
-  await new Promise((r) => setTimeout(r, 1200)); // simulate latency
+  const data = (await res.json()) as { message?: string; user?: { id: string; email: string; name: string; createdAt: string } };
 
-  if (email === 'demo@example.com' && password === 'password') {
-    // A real JWT would come from your backend; this is a mock payload
-    const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-    const payload = btoa(JSON.stringify({
-      sub: 'usr_001',
-      email,
-      name: 'Demo User',
-      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 8, // 8h
-    }));
-    const sig = btoa('mock-signature');
-    return {
-      token: `${header}.${payload}.${sig}`,
-      user: { id: 'usr_001', email, name: 'Demo User', createdAt: '2025-01-01T00:00:00Z' },
-    };
+  if (!res.ok || !data.user) {
+    throw new Error(data.message ?? 'Login failed');
   }
-  throw new Error('Invalid email or password');
+
+  return { user: data.user };
 }
 
 export default function LoginPage() {
@@ -43,13 +32,15 @@ export default function LoginPage() {
 
   useEffect(() => {
     setMounted(true);
-    const token = getToken();
-    if (token && isAuthenticated() && !isTokenExpired(token)) {
-      router.replace('/home');
-      return;
-    }
-    if (token) clearAuth();
-    setTimeout(() => inputRef.current?.focus(), 400);
+    const run = async () => {
+      const user = await getSessionUser();
+      if (user) {
+        router.replace('/home');
+        return;
+      }
+      setTimeout(() => inputRef.current?.focus(), 400);
+    };
+    void run();
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,8 +52,7 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const { token, user } = await loginRequest(email, password);
-      setToken(token);
+      const { user } = await loginRequest(email, password);
       setUser({ ...user, avatarUrl: undefined });
       router.push('/home');
     } catch (err) {
