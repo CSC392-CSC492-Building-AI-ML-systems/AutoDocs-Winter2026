@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: autodocs-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: autodocs
+      POSTGRES_PASSWORD: autodocs
+      POSTGRES_DB: autodocs
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  pgdata:

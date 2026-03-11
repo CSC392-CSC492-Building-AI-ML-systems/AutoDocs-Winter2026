@@ -1,26 +1,179 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-size: 16px;
+  --background: #0a1628;
+  --foreground: #e8edf5;
+  --card: #0f1d35;
+  --card-foreground: #e8edf5;
+  --popover: #0f1d35;
+  --popover-foreground: #e8edf5;
+  --primary: #4a7dff;
+  --primary-foreground: #ffffff;
+  --secondary: #1a2d4d;
+  --secondary-foreground: #e8edf5;
+  --muted: #162542;
+  --muted-foreground: #8b9bb8;
+  --accent: #1e3a5f;
+  --accent-foreground: #e8edf5;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(74, 125, 255, 0.2);
+  --input: transparent;
+  --input-background: #162542;
+  --switch-background: #1a2d4d;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #4a7dff;
+  --chart-1: #4a7dff;
+  --chart-2: #60a5fa;
+  --chart-3: #818cf8;
+  --chart-4: #34d399;
+  --chart-5: #fbbf24;
+  --radius: 0.625rem;
+  --sidebar: #0f1d35;
+  --sidebar-foreground: #e8edf5;
+  --sidebar-primary: #4a7dff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1a2d4d;
+  --sidebar-accent-foreground: #e8edf5;
+  --sidebar-border: rgba(74, 125, 255, 0.15);
+  --sidebar-ring: #4a7dff;
+}
+
+.dark {
+  --background: #0a1628;
+  --foreground: #e8edf5;
+  --card: #0f1d35;
+  --card-foreground: #e8edf5;
+  --popover: #0f1d35;
+  --popover-foreground: #e8edf5;
+  --primary: #4a7dff;
+  --primary-foreground: #ffffff;
+  --secondary: #1a2d4d;
+  --secondary-foreground: #e8edf5;
+  --muted: #162542;
+  --muted-foreground: #8b9bb8;
+  --accent: #1e3a5f;
+  --accent-foreground: #e8edf5;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(74, 125, 255, 0.2);
+  --input: transparent;
+  --input-background: #162542;
+  --ring: #4a7dff;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --chart-1: #4a7dff;
+  --chart-2: #60a5fa;
+  --chart-3: #818cf8;
+  --chart-4: #34d399;
+  --chart-5: #fbbf24;
+  --sidebar: #0f1d35;
+  --sidebar-foreground: #e8edf5;
+  --sidebar-primary: #4a7dff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1a2d4d;
+  --sidebar-accent-foreground: #e8edf5;
+  --sidebar-border: rgba(74, 125, 255, 0.15);
+  --sidebar-ring: #4a7dff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  button {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  input {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
 }
