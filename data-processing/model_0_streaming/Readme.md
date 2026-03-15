@@ -16,6 +16,7 @@ This repository contains the complete end-to-end pipeline for training and evalu
   * Splitting the dataset into training and evaluation sets.
   * Setting up the training pipeline and hyperparameters.
   * Executing the SFT (Supervised Fine-Tuning) process using Unsloth.
+  * The fine tunned model can be found at the [Model Card on Hugging Face](https://huggingface.co/Jaiccc/model_0_streaming_timestamp).
 
 * **`fine_tuned_model_0_inference(Streaming).ipynb`**
   This notebook demonstrates the performance of the final fine-tuned model. It features a side-by-side comparison with the baseline model, showcasing how the fine-tuned version significantly outperforms the original `Phi-4` model in detecting log boundaries on the evaluation set.
