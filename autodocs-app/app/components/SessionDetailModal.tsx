@@ -1,4 +1,4 @@
-import { X, Download, Share2, Trash2, GitBranch, CornerDownRight, LogOut, ChevronRight } from 'lucide-react';
+import { X, Download, Share2, Trash2, GitBranch, CornerDownRight, LogOut, ChevronRight, Loader2, CheckCircle, AlertCircle, UserPlus } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import type { Session, SessionEvent } from '@/app/home/page';
 import { parseSessionContent } from '@/app/home/page';
@@ -15,21 +15,12 @@ interface TreeNode {
   children: TreeNode[];
 }
 
-/**
- * Build a hierarchical tree from the flat event list.
- *
- * Rules:
- *  - depth === 0  → top-level / independent event
- *  - depth === -1 → subevent: child of the most recent non-subevent
- *  - depth >= 1   → exiting event: top-level but visually distinct
- */
 function buildTree(events: SessionEvent[]): TreeNode[] {
   const roots: TreeNode[] = [];
   let lastTopLevel: TreeNode | null = null;
 
   events.forEach((event, index) => {
     const node: TreeNode = { event, index, children: [] };
-
     if (event.depth === -1) {
       if (lastTopLevel) {
         lastTopLevel.children.push(node);
@@ -121,14 +112,119 @@ function EventNode({ node, defaultOpen = true }: { node: TreeNode; defaultOpen?:
   );
 }
 
+// ── Share Panel ────────────────────────────────────────────────────────────────
+
+type ShareState = 'idle' | 'loading' | 'success' | 'error';
+
+function SharePanel({ sessionId }: { sessionId: string }) {
+  const [email, setEmail] = useState('');
+  const [shareState, setShareState] = useState<ShareState>('idle');
+  const [shareMessage, setShareMessage] = useState<string | null>(null);
+
+  const handleShare = async () => {
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed) return;
+
+    setShareState('loading');
+    setShareMessage(null);
+
+    try {
+      const res = await fetch('/api/terminal-sessions/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ terminalSessionId: sessionId, targetUserEmail: trimmed }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.message ?? `Request failed with status ${res.status}`);
+      }
+
+      setShareState('success');
+      setShareMessage(`Shared with ${data.sharedWith?.name ?? trimmed}`);
+      setEmail('');
+    } catch (err) {
+      setShareState('error');
+      setShareMessage(err instanceof Error ? err.message : 'Failed to share session.');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') void handleShare();
+  };
+
+  const isLoading = shareState === 'loading';
+
+  return (
+    <div className="border-t border-border px-6 py-4 bg-muted/20 flex-shrink-0">
+      <p className="text-xs text-muted-foreground font-mono mb-3 flex items-center gap-1.5">
+        <UserPlus className="w-3.5 h-3.5" />
+        Share with a user by email
+      </p>
+
+      <div className="flex gap-2">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            if (shareState !== 'idle') {
+              setShareState('idle');
+              setShareMessage(null);
+            }
+          }}
+          onKeyDown={handleKeyDown}
+          placeholder="user@example.com"
+          disabled={isLoading}
+          className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-sm font-mono text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+        />
+        <button
+          onClick={() => void handleShare()}
+          disabled={isLoading || !email.trim()}
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+        >
+          {isLoading
+            ? <Loader2 className="w-4 h-4 animate-spin" />
+            : <Share2 className="w-4 h-4" />
+          }
+          Share
+        </button>
+      </div>
+
+      {shareMessage && (
+        <div className={`mt-2 flex items-center gap-1.5 text-xs font-mono ${shareState === 'success' ? 'text-emerald-400' : 'text-destructive'}`}>
+          {shareState === 'success'
+            ? <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" />
+            : <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+          }
+          {shareMessage}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Main Modal ─────────────────────────────────────────────────────────────────
+
 export function SessionDetailModal({ isOpen, onClose, session }: SessionDetailModalProps) {
+  const [showSharePanel, setShowSharePanel] = useState(false);
+
   const events = useMemo(
     () => (session ? parseSessionContent(session.content) : []),
     [session]
   );
   const tree = useMemo(() => buildTree(events), [events]);
 
+  const handleClose = () => {
+    setShowSharePanel(false);
+    onClose();
+  };
+
   if (!isOpen || !session) return null;
+
+  // Sessions shared with the user have an owner field; owned sessions do not
+  const isShared = !!session.owner;
 
   const eventCounts = {
     total: events.length,
@@ -145,12 +241,17 @@ export function SessionDetailModal({ isOpen, onClose, session }: SessionDetailMo
         <div className="flex items-center justify-between p-6 border-b border-border flex-shrink-0">
           <div>
             <h2 className="text-foreground">{session.title}</h2>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
               {session.createdAt} · {session.duration}
+              {isShared && (
+                <span className="inline-flex items-center gap-1 text-xs text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded px-1.5 py-0.5 font-mono">
+                  Shared by {session.owner!.name ?? session.owner!.email}
+                </span>
+              )}
             </p>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="w-10 h-10 rounded-lg hover:bg-accent flex items-center justify-center transition-colors"
           >
             <X className="w-5 h-5 text-foreground" />
@@ -183,6 +284,11 @@ export function SessionDetailModal({ isOpen, onClose, session }: SessionDetailMo
           </div>
         </div>
 
+        {/* Share Panel — slides in above footer for owned sessions only */}
+        {!isShared && showSharePanel && (
+          <SharePanel sessionId={session.id} />
+        )}
+
         {/* Footer Actions */}
         <div className="flex items-center justify-between p-6 border-t border-border flex-shrink-0">
           <div className="flex gap-2">
@@ -190,16 +296,28 @@ export function SessionDetailModal({ isOpen, onClose, session }: SessionDetailMo
               <Download className="w-4 h-4" />
               Export
             </button>
-            <button className="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-2">
-              <Share2 className="w-4 h-4" />
-              Share
-            </button>
+
+            {!isShared && (
+              <button
+                onClick={() => setShowSharePanel((s) => !s)}
+                className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                  showSharePanel
+                    ? 'bg-primary/20 text-primary border border-primary/30'
+                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                }`}
+              >
+                <Share2 className="w-4 h-4" />
+                Share
+              </button>
+            )}
           </div>
+
           <button className="px-4 py-2 bg-destructive/10 text-destructive rounded-lg hover:bg-destructive/20 transition-colors flex items-center gap-2">
             <Trash2 className="w-4 h-4" />
             Delete
           </button>
         </div>
+
       </div>
     </div>
   );
