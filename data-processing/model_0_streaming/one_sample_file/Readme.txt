@@ -1,1 +1,0 @@
-The model and files in this folder are just trained and displayed using the data from one .xml file: 1728236638.rec.xml
