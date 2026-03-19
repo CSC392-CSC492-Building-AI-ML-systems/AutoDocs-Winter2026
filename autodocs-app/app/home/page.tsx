@@ -12,22 +12,33 @@ export interface SessionEvent {
   depth: number; // -1 = subevent, 0 = independent, >=1 = exiting
 }
 
-// Shape returned by the API
+// Shape returned by /api/terminal-sessions
 export interface ApiSession {
   id: string;
   title: string;
   durationSeconds: number;
-  content: string; // raw .txt file content
+  content: string;
   createdAt: string;
+}
+
+// Shape returned by /api/terminal-sessions/shared
+export interface ApiSharedSession extends ApiSession {
+  sharedAt: string | null;
+  ownerId: string;
+  ownerName: string;
+  ownerEmail: string;
 }
 
 // Shape used internally / passed to components
 export interface Session {
   id: string;
   title: string;
-  duration: string; // formatted, e.g. "42m 17s"
-  content: string;  // raw .txt file content
+  duration: string;
+  content: string;
   createdAt: string;
+  // Present only for shared sessions
+  owner?: { id: string; name: string; email: string };
+  sharedAt?: string | null;
 }
 
 function formatDuration(seconds: number): string {
@@ -48,7 +59,6 @@ function formatDate(isoString: string): string {
   });
 }
 
-/** Parse raw .txt content into structured SessionEvent[]. */
 export function parseSessionContent(raw: string): SessionEvent[] {
   const lines = raw.split('\n');
   const events: SessionEvent[] = [];
@@ -58,7 +68,6 @@ export function parseSessionContent(raw: string): SessionEvent[] {
     const label = lines[i].trim();
     if (!label) { i++; continue; }
 
-    // Next non-empty line should be the depth value
     let j = i + 1;
     while (j < lines.length && lines[j].trim() === '') j++;
 
@@ -71,23 +80,42 @@ export function parseSessionContent(raw: string): SessionEvent[] {
       }
     }
 
-    // No depth line found — skip this line
     i++;
   }
 
   return events;
 }
 
+function SessionGridSkeleton() {
+  return (
+    <>
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="bg-card rounded-xl border border-border p-6 animate-pulse">
+          <div className="w-12 h-12 bg-muted rounded-lg mb-4" />
+          <div className="h-4 bg-muted rounded w-3/4 mb-2" />
+          <div className="h-3 bg-muted rounded w-1/2 mb-4" />
+          <div className="h-20 bg-muted rounded" />
+        </div>
+      ))}
+    </>
+  );
+}
+
 export default function App() {
   const router = useRouter();
   const [checkingAuth, setCheckingAuth] = useState(true);
+
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [sessionsError, setSessionsError] = useState<string | null>(null);
+
+  const [sharedSessions, setSharedSessions] = useState<Session[]>([]);
+  const [loadingShared, setLoadingShared] = useState(false);
+  const [sharedError, setSharedError] = useState<string | null>(null);
+
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Auth check
   useEffect(() => {
     const run = async () => {
       const user = await getSessionUser();
@@ -126,11 +154,38 @@ export default function App() {
     }
   };
 
-  // Fetch sessions once auth is confirmed
+  const fetchSharedSessions = async () => {
+    setLoadingShared(true);
+    setSharedError(null);
+    try {
+      const res = await fetch('/api/terminal-sessions/shared');
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message ?? `Request failed with status ${res.status}`);
+      }
+      const data = await res.json() as { terminalSessions: ApiSharedSession[] };
+      setSharedSessions(
+        data.terminalSessions.map((s) => ({
+          id: s.id,
+          title: s.title,
+          duration: formatDuration(s.durationSeconds),
+          content: s.content,
+          createdAt: formatDate(s.createdAt),
+          sharedAt: s.sharedAt,
+          owner: { id: s.ownerId, name: s.ownerName, email: s.ownerEmail },
+        }))
+      );
+    } catch (err) {
+      setSharedError(err instanceof Error ? err.message : 'Failed to load shared sessions.');
+    } finally {
+      setLoadingShared(false);
+    }
+  };
+
   useEffect(() => {
     if (checkingAuth) return;
-
     void fetchSessions();
+    void fetchSharedSessions();
   }, [checkingAuth]);
 
   const handleSessionClick = (session: Session) => {
@@ -156,64 +211,84 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
       <main className="flex-1 overflow-auto">
-        <div className="p-8">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-foreground mb-2">Terminal Sessions</h1>
-            <p className="text-muted-foreground">
-              Upload and explore hierarchical event logs from your terminal sessions
-            </p>
-          </div>
+        <div className="p-8 space-y-12">
 
-          {/* Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Upload Tile — always first */}
-            <UploadTile onUploadSuccess={fetchSessions}/>
+          {/* ── My Sessions ─────────────────────────────────────── */}
+          <section>
+            <div className="mb-6">
+              <h1 className="text-foreground mb-1">Terminal Sessions</h1>
+              <p className="text-muted-foreground">
+                Upload and explore hierarchical event logs from your terminal sessions
+              </p>
+            </div>
 
-            {/* Loading skeleton */}
-            {loadingSessions &&
-              Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-card rounded-xl border border-border p-6 animate-pulse">
-                  <div className="w-12 h-12 bg-muted rounded-lg mb-4" />
-                  <div className="h-4 bg-muted rounded w-3/4 mb-2" />
-                  <div className="h-3 bg-muted rounded w-1/2 mb-4" />
-                  <div className="h-20 bg-muted rounded" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <UploadTile onUploadSuccess={fetchSessions} />
+
+              {loadingSessions && <SessionGridSkeleton />}
+
+              {!loadingSessions && sessionsError && (
+                <div className="col-span-full text-sm text-destructive font-mono bg-destructive/10 rounded-lg p-4 border border-destructive/20">
+                  {sessionsError}
                 </div>
-              ))
-            }
+              )}
 
-            {/* Error state */}
-            {!loadingSessions && sessionsError && (
-              <div className="col-span-full text-sm text-destructive font-mono bg-destructive/10 rounded-lg p-4 border border-destructive/20">
-                {sessionsError}
-              </div>
-            )}
+              {!loadingSessions && !sessionsError && sessions.length === 0 && (
+                <div className="col-span-full text-sm text-muted-foreground font-mono p-4">
+                  No sessions yet. Upload your first terminal session to get started.
+                </div>
+              )}
 
-            {/* Empty state */}
-            {!loadingSessions && !sessionsError && sessions.length === 0 && (
-              <div className="col-span-full text-sm text-muted-foreground font-mono p-4">
-                No sessions yet. Upload your first terminal session to get started.
-              </div>
-            )}
+              {!loadingSessions && sessions.map((session) => (
+                <SessionTile
+                  key={session.id}
+                  session={session}
+                  onClick={() => handleSessionClick(session)}
+                />
+              ))}
+            </div>
+          </section>
 
-            {/* Session Tiles */}
-            {!loadingSessions && sessions.map((session) => (
-              <SessionTile
-                key={session.id}
-                session={session}
-                onClick={() => handleSessionClick(session)}
-              />
-            ))}
-          </div>
+          {/* ── Shared With Me ──────────────────────────────────── */}
+          <section>
+            <div className="mb-6">
+              <h2 className="text-foreground mb-1">Shared With Me</h2>
+              <p className="text-muted-foreground">
+                Terminal sessions that others have shared with you
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {loadingShared && <SessionGridSkeleton />}
+
+              {!loadingShared && sharedError && (
+                <div className="col-span-full text-sm text-destructive font-mono bg-destructive/10 rounded-lg p-4 border border-destructive/20">
+                  {sharedError}
+                </div>
+              )}
+
+              {!loadingShared && !sharedError && sharedSessions.length === 0 && (
+                <div className="col-span-full text-sm text-muted-foreground font-mono p-4">
+                  Nothing shared with you yet.
+                </div>
+              )}
+
+              {!loadingShared && sharedSessions.map((session) => (
+                <SessionTile
+                  key={session.id}
+                  session={session}
+                  onClick={() => handleSessionClick(session)}
+                />
+              ))}
+            </div>
+          </section>
+
         </div>
       </main>
 
-      {/* Session Detail Modal */}
       <SessionDetailModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
