@@ -397,7 +397,18 @@ export function SessionDetailModal({ isOpen, onClose, session, onDeleteSession }
         {/* Footer Actions */}
         <div className="flex items-center justify-between p-6 border-t border-border flex-shrink-0">
           <div className="flex gap-2">
-            <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2">
+            <button
+              onClick={() => {
+                const blob = new Blob([session.content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${session.title}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
+            >
               <Download className="w-4 h-4" />
               Export
             </button>
