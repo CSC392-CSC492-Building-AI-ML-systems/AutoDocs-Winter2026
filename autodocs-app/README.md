@@ -108,6 +108,7 @@ Required env vars in `.env.local`:
 ```env
 DATABASE_URL="postgresql://autodocs:autodocs@localhost:5432/autodocs"
 JWT_SECRET="paste-generated-value-here"
+PROCESSOR_API_URL="http://127.0.0.1:8000"
 ```
 
 Generate a strong local secret with:
@@ -117,6 +118,26 @@ openssl rand -base64 64
 ```
 
 Copy that output into `JWT_SECRET` in `.env.local`.
+
+## Processing Service
+
+Terminal recording uploads now flow through a separate Python processing service before being stored in Postgres.
+
+Upload flow:
+
+1. The frontend uploads the file to `POST /api/terminal-sessions/upload`
+2. The Next route proxies the file to `PROCESSOR_API_URL/process-terminal-recording`
+3. The Python service runs parser 0, model 0, parser 1, and model 1
+4. The Next route stores the final annotated session content in `terminal_sessions`
+
+The processor service lives in [`/Users/uzimamalik/Desktop/CSC398/AutoDocs-Winter2026/processing-service`](/Users/uzimamalik/Desktop/CSC398/AutoDocs-Winter2026/processing-service/README.md).
+
+Start it separately:
+
+```bash
+cd ../processing-service
+uvicorn app:app --host 0.0.0.0 --port 8000
+```
 
 ## Getting Started
 

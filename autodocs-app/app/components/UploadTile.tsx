@@ -47,14 +47,14 @@ export function UploadTile({ onUploadSuccess }: { onUploadSuccess?: () => void }
     setErrorMessage(null);
 
     try {
-      const content = await file.text();
-      const title = file.name.replace(/\.[^/.]+$/, ''); // strip file extension
-      const durationSeconds = 2000; // temp
+      const title = file.name.replace(/\.[^/.]+$/, '');
+      const formData = new FormData();
+      formData.set('file', file, file.name);
+      formData.set('title', title);
 
-      const res = await fetch('/api/terminal-sessions', {
+      const res = await fetch('/api/terminal-sessions/upload', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, durationSeconds, content }),
+        body: formData,
       });
 
       if (!res.ok) {
@@ -129,7 +129,7 @@ export function UploadTile({ onUploadSuccess }: { onUploadSuccess?: () => void }
         ref={fileInputRef}
         type="file"
         className="hidden"
-        accept=".txt,.cast,.ttyrec,.log"
+        accept=".xml,.cast,.rec,.asciinema"
         onChange={handleFileChange}
       />
 
@@ -147,7 +147,7 @@ export function UploadTile({ onUploadSuccess }: { onUploadSuccess?: () => void }
 
         {uploadState === 'idle' && (
           <p className="text-xs text-muted-foreground mt-4">
-            Supports .txt, .cast, .ttyrec, .log
+            Supports .xml, .cast, .rec, .asciinema
           </p>
         )}
       </div>
