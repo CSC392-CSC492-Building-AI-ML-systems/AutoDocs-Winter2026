@@ -1,5 +1,5 @@
-import { X, Download, Share2, Trash2, GitBranch, CornerDownRight, LogOut, ChevronRight, Loader2, CheckCircle, AlertCircle, UserPlus } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { X, Download, Share2, Trash2, GitBranch, CornerDownRight, LogOut, ChevronRight, Loader2, CheckCircle, AlertCircle, UserPlus, TriangleAlert } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import type { Session, SessionEvent } from '@/app/home/page';
 import { parseSessionContent } from '@/app/home/page';
 
@@ -7,7 +7,7 @@ interface SessionDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   session: Session | null;
-  onDeleteSession: (sessionId: string) => Promise<void>;
+  onDeleteSession?: (id: string) => Promise<void>;
 }
 
 interface TreeNode {
@@ -206,11 +206,98 @@ function SharePanel({ sessionId }: { sessionId: string }) {
   );
 }
 
+// ── Delete Control ─────────────────────────────────────────────────────────────
+
+type DeleteState = 'idle' | 'confirm' | 'deleting' | 'success' | 'error';
+
+interface DeleteControlProps {
+  sessionTitle: string;
+  deleteState: DeleteState;
+  deleteError: string | null;
+  onInitiate: () => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+  onDismiss: () => void;
+}
+
+function DeleteControl({ sessionTitle, deleteState, deleteError, onInitiate, onConfirm, onCancel, onDismiss }: DeleteControlProps) {
+  if (deleteState === 'idle') {
+    return (
+      <button
+        onClick={onInitiate}
+        className="px-4 py-2 bg-destructive/10 text-destructive rounded-lg hover:bg-destructive/20 transition-colors flex items-center gap-2"
+      >
+        <Trash2 className="w-4 h-4" />
+        Delete
+      </button>
+    );
+  }
+
+  if (deleteState === 'confirm') {
+    return (
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 text-xs text-destructive font-mono mr-1">
+          <TriangleAlert className="w-3.5 h-3.5 flex-shrink-0" />
+          Delete &ldquo;{sessionTitle}&rdquo;? This cannot be undone.
+        </div>
+        <button
+          onClick={onConfirm}
+          className="px-3 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors flex items-center gap-1.5 text-sm font-medium"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          Confirm
+        </button>
+        <button
+          onClick={onCancel}
+          className="px-3 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors text-sm"
+        >
+          Cancel
+        </button>
+      </div>
+    );
+  }
+
+  if (deleteState === 'deleting') {
+    return (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground font-mono">
+        <Loader2 className="w-4 h-4 animate-spin text-destructive" />
+        Deleting...
+      </div>
+    );
+  }
+
+  if (deleteState === 'success') {
+    return (
+      <div className="flex items-center gap-2 text-sm text-emerald-400 font-mono">
+        <CheckCircle className="w-4 h-4" />
+        Deleted
+      </div>
+    );
+  }
+
+  // error state
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 text-xs text-destructive font-mono">
+        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+        {deleteError ?? 'Delete failed.'}
+      </div>
+      <button
+        onClick={onDismiss}
+        className="px-3 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors text-sm"
+      >
+        Dismiss
+      </button>
+    </div>
+  );
+}
+
 // ── Main Modal ─────────────────────────────────────────────────────────────────
 
 export function SessionDetailModal({ isOpen, onClose, session, onDeleteSession }: SessionDetailModalProps) {
   const [showSharePanel, setShowSharePanel] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+
+  const [deleteState, setDeleteState] = useState<DeleteState>('idle');
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const events = useMemo(
@@ -219,22 +306,29 @@ export function SessionDetailModal({ isOpen, onClose, session, onDeleteSession }
   );
   const tree = useMemo(() => buildTree(events), [events]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setShowSharePanel(false);
-    }
-    setIsDeleting(false);
-    setDeleteError(null);
-  }, [isOpen, session?.id]);
-
   const handleClose = () => {
     setShowSharePanel(false);
+    setDeleteState('idle');
+    setDeleteError(null);
     onClose();
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!session || !onDeleteSession) return;
+    setDeleteState('deleting');
+    setDeleteError(null);
+    try {
+      await onDeleteSession(session.id);
+      setDeleteState('success');
+      setTimeout(() => handleClose(), 1500);
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Failed to delete session.');
+      setDeleteState('error');
+    }
   };
 
   if (!isOpen || !session) return null;
 
-  // Sessions shared with the user have an owner field; owned sessions do not
   const isShared = !!session.owner;
 
   const eventCounts = {
@@ -242,27 +336,6 @@ export function SessionDetailModal({ isOpen, onClose, session, onDeleteSession }
     independent: events.filter((e) => e.depth === 0).length,
     sub: events.filter((e) => e.depth === -1).length,
     exiting: events.filter((e) => e.depth >= 1).length,
-  };
-
-  const handleDelete = async () => {
-    if (isShared || isDeleting) {
-      return;
-    }
-
-    const confirmed = window.confirm(`Delete "${session.title}"? This cannot be undone.`);
-    if (!confirmed) {
-      return;
-    }
-
-    setIsDeleting(true);
-    setDeleteError(null);
-
-    try {
-      await onDeleteSession(session.id);
-    } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : 'Failed to delete session.');
-      setIsDeleting(false);
-    }
   };
 
   return (
@@ -321,16 +394,21 @@ export function SessionDetailModal({ isOpen, onClose, session, onDeleteSession }
           <SharePanel sessionId={session.id} />
         )}
 
-        {deleteError && (
-          <div className="px-6 py-3 border-t border-border bg-destructive/10 text-destructive text-sm font-mono">
-            {deleteError}
-          </div>
-        )}
-
         {/* Footer Actions */}
         <div className="flex items-center justify-between p-6 border-t border-border flex-shrink-0">
           <div className="flex gap-2">
-            <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2">
+            <button
+              onClick={() => {
+                const blob = new Blob([session.content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${session.title}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
+            >
               <Download className="w-4 h-4" />
               Export
             </button>
@@ -350,20 +428,15 @@ export function SessionDetailModal({ isOpen, onClose, session, onDeleteSession }
             )}
           </div>
 
-          {!isShared && (
-            <button
-              onClick={() => void handleDelete()}
-              disabled={isDeleting}
-              className="px-4 py-2 bg-destructive/10 text-destructive rounded-lg hover:bg-destructive/20 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isDeleting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Trash2 className="w-4 h-4" />
-              )}
-              {isDeleting ? 'Deleting...' : 'Delete'}
-            </button>
-          )}
+          <DeleteControl
+            sessionTitle={session.title}
+            deleteState={deleteState}
+            deleteError={deleteError}
+            onInitiate={() => setDeleteState('confirm')}
+            onConfirm={() => void handleDeleteConfirm()}
+            onCancel={() => setDeleteState('idle')}
+            onDismiss={() => setDeleteState('idle')}
+          />
         </div>
 
       </div>

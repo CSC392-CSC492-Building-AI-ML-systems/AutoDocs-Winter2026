@@ -48,8 +48,33 @@ export function UploadTile({ onUploadSuccess }: { onUploadSuccess?: () => void }
 
     try {
       const content = await file.text();
-      const title = file.name.replace(/\.[^/.]+$/, ''); // strip file extension
-      const durationSeconds = 2000; // temp
+      const extension = file.name.split('.').pop()?.toLowerCase();
+
+      if (!['cast'].includes(extension || '')) {
+        throw new Error('Unsupported file type. Please upload a .cast file.');
+      }
+
+      const title = file.name.replace(/\.[^/.]+$/, '');
+      const lines = content.split('\n').map(l => l.trim()).filter(Boolean);
+
+      if (lines.length < 2) {
+        throw new Error('Invalid .cast file format.');
+      }
+
+      // Last event line (skip header at index 0)
+      const lastLine = lines[lines.length - 1];
+
+      let durationSeconds: number;
+
+      try {
+        const parsed = JSON.parse(lastLine);
+        if (!Array.isArray(parsed) || typeof parsed[0] !== 'number') {
+          throw new Error();
+        }
+        durationSeconds = Math.round(parsed[0]);
+      } catch {
+        throw new Error('Failed to parse duration from .cast file.');
+      }
 
       const res = await fetch('/api/terminal-sessions', {
         method: 'POST',
@@ -65,7 +90,6 @@ export function UploadTile({ onUploadSuccess }: { onUploadSuccess?: () => void }
       setUploadState('success');
       onUploadSuccess?.();
 
-      // Reset back to idle after a moment
       setTimeout(() => setUploadState('idle'), 2500);
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : 'Upload failed.');
@@ -147,7 +171,7 @@ export function UploadTile({ onUploadSuccess }: { onUploadSuccess?: () => void }
 
         {uploadState === 'idle' && (
           <p className="text-xs text-muted-foreground mt-4">
-            Supports .txt, .cast, .ttyrec, .log
+            Upload your terminal session recordings (e.g. asciinema .cast files)
           </p>
         )}
       </div>
