@@ -18,19 +18,30 @@ interface TreeNode {
 
 function buildTree(events: SessionEvent[]): TreeNode[] {
   const roots: TreeNode[] = [];
-  let lastTopLevel: TreeNode | null = null;
+  // Stack of ancestor nodes — top of stack is the current parent context.
+  const stack: TreeNode[] = [];
+
+  const currentChildren = () =>
+    stack.length > 0 ? stack[stack.length - 1].children : roots;
 
   events.forEach((event, index) => {
     const node: TreeNode = { event, index, children: [] };
+
     if (event.depth === -1) {
-      if (lastTopLevel) {
-        lastTopLevel.children.push(node);
-      } else {
-        roots.push(node);
-      }
+      // Entering a deeper level: attach to current parent, then push onto stack
+      // so subsequent events become children of this node.
+      currentChildren().push(node);
+      stack.push(node);
+    } else if (event.depth === 0) {
+      // Continuing at the same level: sibling of the current context.
+      currentChildren().push(node);
     } else {
-      roots.push(node);
-      lastTopLevel = node;
+      // depth >= 1 — finishing a subtask: attach the exit node as the last child
+      // of the current subtree, then pop back up (one level per depth unit).
+      currentChildren().push(node);
+      for (let i = 0; i < event.depth && stack.length > 0; i++) {
+        stack.pop();
+      }
     }
   });
 
@@ -59,6 +70,40 @@ function depthTextClass(depth: number): string {
   if (depth === -1) return 'text-blue-300/80';
   if (depth >= 1) return 'text-amber-300/80';
   return 'text-foreground';
+}
+
+function RootNode({ title, totalEvents, children }: { title: string; totalEvents: number; children: React.ReactNode }) {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <div className="relative">
+      <div
+        className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-3 cursor-pointer hover:bg-accent/10 transition-colors"
+        onClick={() => setOpen((o) => !o)}
+      >
+        <ChevronRight
+          className={`w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-muted-foreground transition-transform duration-150 ${open ? 'rotate-90' : ''}`}
+        />
+        <GitBranch className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400">Session</span>
+            <span className="text-[10px] text-muted-foreground font-mono">
+              {totalEvents} event{totalEvents !== 1 ? 's' : ''}
+            </span>
+          </div>
+          <p className="text-sm font-mono leading-snug text-foreground">{title}</p>
+        </div>
+      </div>
+
+      {open && (
+        <div className="ml-6 mt-1 space-y-1 relative">
+          <div className="absolute top-0 bottom-0 w-px bg-border/60" style={{ left: '-12px' }} />
+          {children}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function EventNode({ node, defaultOpen = true }: { node: TreeNode; defaultOpen?: boolean }) {
@@ -340,7 +385,7 @@ export function SessionDetailModal({ isOpen, onClose, session, onDeleteSession }
 
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-card rounded-xl border border-border max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
+      <div className="bg-card rounded-xl border border-border max-w-4xl w-full h-[90vh] overflow-hidden shadow-2xl flex flex-col">
 
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border flex-shrink-0">
@@ -382,11 +427,11 @@ export function SessionDetailModal({ isOpen, onClose, session, onDeleteSession }
 
         {/* Hierarchical Event Tree */}
         <div className="flex-1 overflow-auto p-6">
-          <div className="space-y-2">
+          <RootNode title={session.title} totalEvents={eventCounts.total}>
             {tree.map((node) => (
               <EventNode key={node.index} node={node} defaultOpen={true} />
             ))}
-          </div>
+          </RootNode>
         </div>
 
         {/* Share Panel — slides in above footer for owned sessions only */}
