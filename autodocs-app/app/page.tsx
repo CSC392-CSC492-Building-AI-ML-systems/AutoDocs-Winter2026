@@ -1,26 +1,17 @@
 "use client";
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { isAuthenticated, isTokenExpired, getToken, clearAuth } from '@/app/lib/auth';
+import { getSessionUser } from '@/app/lib/auth';
 
 export default function RootPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = getToken();
-
-    if (!token || !isAuthenticated()) {
-      router.replace('/login');
-      return;
-    }
-
-    if (isTokenExpired(token)) {
-      clearAuth();
-      router.replace('/login');
-      return;
-    }
-
-    router.replace('/home');
+      const run = async () => {
+        const user = await getSessionUser();
+        router.replace(user ? '/home' : '/login');
+      };
+      void run();
   }, [router]);
 
   // Minimal loading state while redirecting
