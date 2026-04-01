@@ -1,0 +1,1261 @@
+{
+  "dataset": "librocubic/model1-annotation-dataset",
+  "n_gt": 125,
+  "n_matched": 125,
+  "depth_accuracy": 0.592,
+  "rouge_l": 0.29249252451070357,
+  "cosine_similarity": 0.5064926715642214,
+  "bertscore_f1": 0.8803170323371887,
+  "per_event": [
+    {
+      "idx": 0,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Attach to existing screen session (screen -dr), switching to full-screen and showing an installed packages listing.",
+      "pred_annotation": "Run \"scr\" command, causing system to perform package installation/update operations",
+      "depth_correct": false,
+      "rouge_l": 0.14285714285714285,
+      "cosine_sim": 0.29829907417297363
+    },
+    {
+      "idx": 1,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Switch between GNU screen windows and run apt update in window 1, which fails due to unresolved host and 404s",
+      "pred_annotation": "Continue inspecting screen session output to monitor package installation status",
+      "depth_correct": true,
+      "rouge_l": 0.13333333333333333,
+      "cosine_sim": 0.39470818638801575
+    },
+    {
+      "idx": 2,
+      "gt_depth": 1,
+      "pred_depth": 0,
+      "gt_annotation": "Exit pager/view and return to the shell prompt.",
+      "pred_annotation": "Close paginated display and return to shell prompt",
+      "depth_correct": false,
+      "rouge_l": 0.5882352941176471,
+      "cosine_sim": 0.7169342041015625
+    },
+    {
+      "idx": 3,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Remove GTK accessibility packages with apt: uninstall libgail-common, then autoremove libgail18 and process libc-bin triggers.",
+      "pred_annotation": "Execute \"sudo apt\" command to handle package management tasks",
+      "depth_correct": true,
+      "rouge_l": 0.07692307692307691,
+      "cosine_sim": 0.025734087452292442
+    },
+    {
+      "idx": 4,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Attempt to run sudo debootstrap but abort immediately due to unresolved host configuration.",
+      "pred_annotation": "Run deborphan via sudo to identify unused packages",
+      "depth_correct": true,
+      "rouge_l": 0.2857142857142857,
+      "cosine_sim": 0.3198721408843994
+    },
+    {
+      "idx": 5,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Pipe full package list to less for review after considering cleanup commands (deborphan, autoremove, remove libgail-common)",
+      "pred_annotation": "Run deborphan and apt\u2011autoremove to purge orphaned packages, manually remove libgail-common, review remaining packages with dpkg\u00a0-l\u202f|\u202fless, and manage screen windows while keeping the cleanup workflow active",
+      "depth_correct": true,
+      "rouge_l": 0.21276595744680848,
+      "cosine_sim": 0.6174582242965698
+    },
+    {
+      "idx": 6,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Review installed packages listing (dpkg/apt output)",
+      "pred_annotation": "Select screen window\u00a00 to view detailed package list",
+      "depth_correct": true,
+      "rouge_l": 0.25,
+      "cosine_sim": 0.4485971927642822
+    },
+    {
+      "idx": 7,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Quit current viewer/pager and return to shell.",
+      "pred_annotation": "Close the pager view and return to the shell prompt",
+      "depth_correct": true,
+      "rouge_l": 0.5555555555555556,
+      "cosine_sim": 0.8483027815818787
+    },
+    {
+      "idx": 8,
+      "gt_depth": 0,
+      "pred_depth": 1,
+      "gt_annotation": "Remove liblink-grammar4 and liblink-grammar4-dev with apt using sudo.",
+      "pred_annotation": "...",
+      "depth_correct": false,
+      "rouge_l": 0,
+      "cosine_sim": 0.06792333722114563
+    },
+    {
+      "idx": 9,
+      "gt_depth": -1,
+      "pred_depth": 0,
+      "gt_annotation": "Pipe dpkg package list into less to page through installed packages.",
+      "pred_annotation": "Execute sudo apt remove liblink\u2011grammar4/liblink\u2011grammar4\u2011dev and inspect remaining packages with dpkg\u00a0\u2013l piped to less.",
+      "depth_correct": false,
+      "rouge_l": 0.13333333333333333,
+      "cosine_sim": 0.4217377007007599
+    },
+    {
+      "idx": 10,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Reattach to screen session, add SERVERQEMUDEV file with sudo, and initiate git commit in /home/fai/config.",
+      "pred_annotation": "Add updated package configuration files to staging area and begin preparing a Git commit",
+      "depth_correct": false,
+      "rouge_l": 0.3225806451612903,
+      "cosine_sim": 0.3847846984863281
+    },
+    {
+      "idx": 11,
+      "gt_depth": 0,
+      "pred_depth": 1,
+      "gt_annotation": "Commit changes with message 'libgnutls30-dev is not in debian 9.' using sudo after resolving permission lock.",
+      "pred_annotation": "Commit updated config files to Git repository after resolving permission errors",
+      "depth_correct": false,
+      "rouge_l": 0.2857142857142857,
+      "cosine_sim": 0.469313383102417
+    },
+    {
+      "idx": 12,
+      "gt_depth": -1,
+      "pred_depth": 0,
+      "gt_annotation": "Show staged diffs with git diff and page through long output in a pager.",
+      "pred_annotation": "Stage configuration updates, review diffs, and commit changes",
+      "depth_correct": false,
+      "rouge_l": 0.2727272727272727,
+      "cosine_sim": 0.42180687189102173
+    },
+    {
+      "idx": 13,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Exit the pager and return to the shell prompt.",
+      "pred_annotation": "Quit pager after reviewing git diff",
+      "depth_correct": true,
+      "rouge_l": 0.13333333333333333,
+      "cosine_sim": 0.4873535931110382
+    },
+    {
+      "idx": 14,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Stage package_config/SERVERNTOP with git add, using sudo authentication due to permission issues.",
+      "pred_annotation": "Stage modified files into the Git index with \"git add\"",
+      "depth_correct": true,
+      "rouge_l": 0.3333333333333333,
+      "cosine_sim": 0.4390783905982971
+    },
+    {
+      "idx": 15,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Commit change converting ntop to ntopng with sudo-authenticated git commit.",
+      "pred_annotation": "Stage SERVERNTOP, review diffs, and commit changes noting libgnutls30\u2011dev absence on Debian\u00a09",
+      "depth_correct": true,
+      "rouge_l": 0.16,
+      "cosine_sim": 0.07274861633777618
+    },
+    {
+      "idx": 16,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Stage changes by adding package_config/SERVERNAGIOS via git add with path autocompletion.",
+      "pred_annotation": "Add modified files in package_config to Git index",
+      "depth_correct": true,
+      "rouge_l": 0.27272727272727276,
+      "cosine_sim": 0.4560336768627167
+    },
+    {
+      "idx": 17,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Attach to screen, run FAI build installing packages; build fails with 'No space left on device'; check filesystem usage with df.",
+      "pred_annotation": "Build Debian live\u2011CD image with fai\u2011mirror: install packages, mirror repo, export indices, assemble squashfs, abort due to out\u2011of\u2011space.",
+      "depth_correct": false,
+      "rouge_l": 0.18604651162790697,
+      "cosine_sim": 0.5253194570541382
+    },
+    {
+      "idx": 18,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Detach from remote screen session and return to shell.",
+      "pred_annotation": "Detached from screen session, returning to shell prompt",
+      "depth_correct": true,
+      "rouge_l": 0.823529411764706,
+      "cosine_sim": 0.7857475280761719
+    },
+    {
+      "idx": 19,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Attach to a screen session and monitor a FAI build installing packages and creating the fai_cd.iso image.",
+      "pred_annotation": "Generate a bootable LiveCD ISO by packaging the root filesystem into a squashfs image and assembling it with Xorriso",
+      "depth_correct": false,
+      "rouge_l": 0.21052631578947367,
+      "cosine_sim": 0.4957718551158905
+    },
+    {
+      "idx": 20,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Invoke reverse-i-search in the shell history.",
+      "pred_annotation": "Begin reverse\u2011incremental search to locate a previous command",
+      "depth_correct": false,
+      "rouge_l": 0.23529411764705882,
+      "cosine_sim": 0.6675472259521484
+    },
+    {
+      "idx": 21,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Secure-copy fai_cd.iso to 172.16.0.1 and wait for the transfer to complete.",
+      "pred_annotation": "Transfer newly built fai_cd.iso to remote host using scp",
+      "depth_correct": true,
+      "rouge_l": 0.2857142857142857,
+      "cosine_sim": 0.6353890895843506
+    },
+    {
+      "idx": 22,
+      "gt_depth": -1,
+      "pred_depth": 0,
+      "gt_annotation": "Open top to inspect CPU, memory, and processes on the host.",
+      "pred_annotation": "Press '1' within screen session, likely to interact with displayed information",
+      "depth_correct": false,
+      "rouge_l": 0.09090909090909091,
+      "cosine_sim": 0.13144591450691223
+    },
+    {
+      "idx": 23,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Attempt to reattach to screen session 'faiserver-tearoff-9', but no matching session exists.",
+      "pred_annotation": "Launch top and try to reattach to screen session \"faiserver-tearoff-9\", receiving notice that no such screen exists",
+      "depth_correct": true,
+      "rouge_l": 0.6060606060606061,
+      "cosine_sim": 0.8224921226501465
+    },
+    {
+      "idx": 24,
+      "gt_depth": 0,
+      "pred_depth": 1,
+      "gt_annotation": "Remove logical volume 'faiserver-tearoff-9' and attempt to delete related VM files (some not found)",
+      "pred_annotation": "Delete stale logical volume \"faiserver\u2011tearoff\u20119\" and purge related temporary files",
+      "depth_correct": false,
+      "rouge_l": 0.5714285714285715,
+      "cosine_sim": 0.7720000147819519
+    },
+    {
+      "idx": 25,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Attempt to manage VM session: kill and start 'faiserver-tearoff-9', then create a VM with ISO autocomplete and boot it via GRUB inside screen; session terminates.",
+      "pred_annotation": "Terminate lingering VM, retry attaching to its screen session, launch resource monitor, restart the VM, and follow its boot output until the screen session ends",
+      "depth_correct": true,
+      "rouge_l": 0.2692307692307692,
+      "cosine_sim": 0.6111831665039062
+    },
+    {
+      "idx": 26,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "List available detached screen sessions with sudo and attempt to reattach to session 95; show session list and launch TinTin++ output.",
+      "pred_annotation": "Reattach to screen session 95 as root and gain shell access",
+      "depth_correct": true,
+      "rouge_l": 0.31249999999999994,
+      "cosine_sim": 0.6723968982696533
+    },
+    {
+      "idx": 27,
+      "gt_depth": -1,
+      "pred_depth": -1,
+      "gt_annotation": "Change directory to VM preseed path and launch KVM with FAI ISO; attach via screen and issue GRUB serial boot commands to start installation.",
+      "pred_annotation": "Launch KVM instance via startup\u2011kvm.sh for preseed\u2011tearoff\u2011faiserver\u20119, view FAI\u2011CD menu, detect quick termination",
+      "depth_correct": true,
+      "rouge_l": 0.13953488372093023,
+      "cosine_sim": 0.6530963778495789
+    },
+    {
+      "idx": 28,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Exit the screen/TinTin++ session and return to the shell prompt.",
+      "pred_annotation": "...",
+      "depth_correct": true,
+      "rouge_l": 0,
+      "cosine_sim": 0.049919094890356064
+    },
+    {
+      "idx": 29,
+      "gt_depth": -1,
+      "pred_depth": -1,
+      "gt_annotation": "Attach to GNU screen session displaying FAI build logs and creation of fai_cd.iso.",
+      "pred_annotation": "Launch FAI workflow to assemble a live\u2011USB ISO\u2014mirrors packages, builds squashfs, writes ISO",
+      "depth_correct": true,
+      "rouge_l": 0.20000000000000004,
+      "cosine_sim": 0.556296706199646
+    },
+    {
+      "idx": 30,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Detach from remote screen session and show shell prompt.",
+      "pred_annotation": "Detach from screen session and resume normal shell prompt",
+      "depth_correct": true,
+      "rouge_l": 0.7777777777777778,
+      "cosine_sim": 0.8233328461647034
+    },
+    {
+      "idx": 31,
+      "gt_depth": -1,
+      "pred_depth": -1,
+      "gt_annotation": "Attach to an existing GNU Screen session displaying system boot logs and return to a shell prompt.",
+      "pred_annotation": "Launch screen session to manage multiple virtual terminals",
+      "depth_correct": true,
+      "rouge_l": 0.24,
+      "cosine_sim": 0.36278092861175537
+    },
+    {
+      "idx": 32,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Install git, Xorg, and xscreensaver, build a FAI CD ISO, then SCP the image to 172.16.0.1 with a date-stamped filename.",
+      "pred_annotation": "Initiate creation of FAI CD ISO via mkfs and xorriso based on selected option",
+      "depth_correct": false,
+      "rouge_l": 0.15789473684210525,
+      "cosine_sim": 0.34679698944091797
+    },
+    {
+      "idx": 33,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Attach to a GNU Screen window showing a VM kernel boot sequence, then return to the faiserver shell prompt.",
+      "pred_annotation": "Switch to window 2 in attached screen session",
+      "depth_correct": true,
+      "rouge_l": 0.14814814814814814,
+      "cosine_sim": 0.13598692417144775
+    },
+    {
+      "idx": 34,
+      "gt_depth": 0,
+      "pred_depth": 1,
+      "gt_annotation": "Install git-core, Xorg, and xscreensaver into a FAI mirror, build a bootable ISO, then SCP it to 172.16.0.1 with host key acceptance.",
+      "pred_annotation": "Build FAI CD ISO, upload via SCP to 172.16.0.1 with a date\u2011stamped filename, concluding the deployment prep",
+      "depth_correct": false,
+      "rouge_l": 0.3829787234042554,
+      "cosine_sim": 0.46975433826446533
+    },
+    {
+      "idx": 35,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "View FAIBASE package list in editor, showing utilities and X11 forwarding requirement.",
+      "pred_annotation": "Mark all listed packages for installation",
+      "depth_correct": true,
+      "rouge_l": 0.1111111111111111,
+      "cosine_sim": 0.307996928691864
+    },
+    {
+      "idx": 36,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Issue a series of shell commands: list packages, search config for ntpsec, open FAIBASE in Emacs, and prepare to install dmidecode.",
+      "pred_annotation": "Update system packages, inspect NTP configurations, and edit FAIBASE package list with Emacs",
+      "depth_correct": true,
+      "rouge_l": 0.17647058823529413,
+      "cosine_sim": 0.46683669090270996
+    },
+    {
+      "idx": 37,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Build FAI CD image, then securely copy fai_cd.iso to 172.16.0.1 with host key confirmation.",
+      "pred_annotation": "Compile FAI CD ISO, upload to 172.16.0.1 via scp with date\u2011stamped name.",
+      "depth_correct": true,
+      "rouge_l": 0.5142857142857142,
+      "cosine_sim": 0.6593140363693237
+    },
+    {
+      "idx": 38,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Boot Debian in VM and reach shell prompt on faiserver.",
+      "pred_annotation": "Select screen window 2 to display VM kernel boot logs",
+      "depth_correct": true,
+      "rouge_l": 0.10000000000000002,
+      "cosine_sim": 0.3894345760345459
+    },
+    {
+      "idx": 39,
+      "gt_depth": 1,
+      "pred_depth": 0,
+      "gt_annotation": "Open FAIBASE package list in Emacs, then return to shell.",
+      "pred_annotation": "Show FAIBASE package list through interactive menu",
+      "depth_correct": false,
+      "rouge_l": 0.3529411764705882,
+      "cosine_sim": 0.6151227355003357
+    },
+    {
+      "idx": 40,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Change into config directory, then check Git status and hit a safe.directory ownership warning.",
+      "pred_annotation": "Run \"git status\" in /home/fai/config, triggering Git\u2019s dubious\u2011ownership safety warning",
+      "depth_correct": true,
+      "rouge_l": 0.2758620689655172,
+      "cosine_sim": 0.741712749004364
+    },
+    {
+      "idx": 41,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "List all files in /home/fai/config with long, hidden, and directory details.",
+      "pred_annotation": "List contents of /home/fai/config directory",
+      "depth_correct": false,
+      "rouge_l": 0.5,
+      "cosine_sim": 0.8856553435325623
+    },
+    {
+      "idx": 42,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Generate a new root-owned ED25519 SSH key with 100 KDF rounds via sudo ssh-keygen.",
+      "pred_annotation": "Generate SSH key pair for root to enable password\u2011less authentication",
+      "depth_correct": false,
+      "rouge_l": 0.2222222222222222,
+      "cosine_sim": 0.5136957764625549
+    },
+    {
+      "idx": 43,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Display the newly created root public key by catting /root/.ssh/id_ed25519.pub with sudo.",
+      "pred_annotation": "Show the newly generated root\u2011owned Ed25519 public key",
+      "depth_correct": true,
+      "rouge_l": 0.39999999999999997,
+      "cosine_sim": 0.7999083995819092
+    },
+    {
+      "idx": 44,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Connect to remote host 10.0.7.138 via SSH.",
+      "pred_annotation": "Initiate SSH connection to host 10.0.7.138",
+      "depth_correct": false,
+      "rouge_l": 0.7368421052631577,
+      "cosine_sim": 0.867097795009613
+    },
+    {
+      "idx": 45,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Authenticate to 10.0.7.138 with the demo account password.",
+      "pred_annotation": "Enter password to authenticate SSH session",
+      "depth_correct": true,
+      "rouge_l": 0.11764705882352942,
+      "cosine_sim": 0.3670388460159302
+    },
+    {
+      "idx": 46,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Install asciinema using sudo apt and complete post-install system and process scan.",
+      "pred_annotation": "Elevated apt command initiates scanning of Linux images",
+      "depth_correct": true,
+      "rouge_l": 0.1904761904761905,
+      "cosine_sim": 0.26389896869659424
+    },
+    {
+      "idx": 47,
+      "gt_depth": 1,
+      "pred_depth": 0,
+      "gt_annotation": "Log out from remote host and return to local shell.",
+      "pred_annotation": "Close SSH session and return to local shell",
+      "depth_correct": false,
+      "rouge_l": 0.5555555555555556,
+      "cosine_sim": 0.6548871397972107
+    },
+    {
+      "idx": 48,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Exit the local shell session.",
+      "pred_annotation": "Terminate SSH session and disconnect from remote host",
+      "depth_correct": true,
+      "rouge_l": 0.15384615384615385,
+      "cosine_sim": 0.5056052207946777
+    },
+    {
+      "idx": 49,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Connect via SSH to remote host at 10.0.7.138 and log in successfully.",
+      "pred_annotation": "Begin SSH connection attempt to remote host",
+      "depth_correct": false,
+      "rouge_l": 0.36363636363636365,
+      "cosine_sim": 0.5957967638969421
+    },
+    {
+      "idx": 50,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Change the demo account password using passwd, confirming a new phrase-based password.",
+      "pred_annotation": "Interactively update user password",
+      "depth_correct": false,
+      "rouge_l": 0.11764705882352941,
+      "cosine_sim": 0.5246797800064087
+    },
+    {
+      "idx": 51,
+      "gt_depth": 1,
+      "pred_depth": 0,
+      "gt_annotation": "Log out from the remote SSH session and close the connection.",
+      "pred_annotation": "Terminate SSH session and return to local shell",
+      "depth_correct": false,
+      "rouge_l": 0.3157894736842105,
+      "cosine_sim": 0.5607457160949707
+    },
+    {
+      "idx": 52,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Exit the local shell session.",
+      "pred_annotation": "Terminate SSH session and return to local prompt",
+      "depth_correct": true,
+      "rouge_l": 0.15384615384615385,
+      "cosine_sim": 0.617003858089447
+    },
+    {
+      "idx": 53,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Run two cm commands piped to grep to list faiserver-tearoff instances and their IPs.",
+      "pred_annotation": "...",
+      "depth_correct": true,
+      "rouge_l": 0,
+      "cosine_sim": 0.0020435750484466553
+    },
+    {
+      "idx": 54,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Invoke cm without arguments to display its usage and available subcommands.",
+      "pred_annotation": "Invoke cm tool to inspect its options",
+      "depth_correct": false,
+      "rouge_l": 0.4444444444444444,
+      "cosine_sim": 0.6829856038093567
+    },
+    {
+      "idx": 55,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Attempt to set a descriptive note on faiserver-tearoff-12, but permission denied.",
+      "pred_annotation": "Execute \u2018cm set\u2019 command to adjust configuration, receiving permission\u2011denied error",
+      "depth_correct": true,
+      "rouge_l": 0.24999999999999994,
+      "cosine_sim": 0.36876851320266724
+    },
+    {
+      "idx": 56,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Attempt to run sudo and exit when no password is provided.",
+      "pred_annotation": "Attempt to annotate faiserver\u2011tearoff\u201112, receive permission denied, prompted for sudo password, operation fails",
+      "depth_correct": true,
+      "rouge_l": 0.30769230769230765,
+      "cosine_sim": 0.533740758895874
+    },
+    {
+      "idx": 57,
+      "gt_depth": 0,
+      "pred_depth": 1,
+      "gt_annotation": "Exit the current shell session.",
+      "pred_annotation": "Terminate shell session and close terminal",
+      "depth_correct": false,
+      "rouge_l": 0.3636363636363636,
+      "cosine_sim": 0.789584755897522
+    },
+    {
+      "idx": 58,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Establish SSH connection to remote host 172.16.0.17 and log in.",
+      "pred_annotation": "Initiate SSH connection to remote server, provide password, launch FAI installer",
+      "depth_correct": false,
+      "rouge_l": 0.33333333333333337,
+      "cosine_sim": 0.43868982791900635
+    },
+    {
+      "idx": 59,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Change directory to /home/fai/config on the remote server.",
+      "pred_annotation": "Change working directory to local configuration folder",
+      "depth_correct": false,
+      "rouge_l": 0.3529411764705882,
+      "cosine_sim": 0.5171613097190857
+    },
+    {
+      "idx": 60,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Run git diff and receive a usage warning because the current directory is not a Git repository.",
+      "pred_annotation": "Run \"git diff\" to review unstaged modifications in the configuration repository",
+      "depth_correct": true,
+      "rouge_l": 0.35714285714285715,
+      "cosine_sim": 0.6864624619483948
+    },
+    {
+      "idx": 61,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "List directory contents in /home/fai/config.",
+      "pred_annotation": "Display contents of the current working directory",
+      "depth_correct": true,
+      "rouge_l": 0.14285714285714285,
+      "cosine_sim": 0.45614495873451233
+    },
+    {
+      "idx": 62,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Run git status and receive a fatal dubious ownership error for /home/fai/config.",
+      "pred_annotation": "Attempted git status, received dubious ownership warning prompting global safe.directory setting",
+      "depth_correct": true,
+      "rouge_l": 0.3846153846153846,
+      "cosine_sim": 0.6980162262916565
+    },
+    {
+      "idx": 63,
+      "gt_depth": -1,
+      "pred_depth": -1,
+      "gt_annotation": "Run sudo git diff to inspect grub.cfg changes in a pager and scroll through the output.",
+      "pred_annotation": "Execute 'sudo git diff' to review repository changes while circumventing ownership restrictions",
+      "depth_correct": true,
+      "rouge_l": 0.3448275862068966,
+      "cosine_sim": 0.2492161989212036
+    },
+    {
+      "idx": 64,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Exit pager showing git diff and return to shell in /home/fai/config.",
+      "pred_annotation": "...",
+      "depth_correct": true,
+      "rouge_l": 0,
+      "cosine_sim": 0.07940533757209778
+    },
+    {
+      "idx": 65,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Run sudo git add to stage files/etc/fai/grub.cfg/SERVERFAI, seeing a host resolution warning.",
+      "pred_annotation": "Search for grub.cfg under /home/fai/config using sudo find",
+      "depth_correct": false,
+      "rouge_l": 0.14285714285714285,
+      "cosine_sim": 0.49000218510627747
+    },
+    {
+      "idx": 66,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Create Git commit for GRUB EFI video configuration changes using sudo git commit with a descriptive message.",
+      "pred_annotation": "Stage and commit configuration changes, resolving host name issue",
+      "depth_correct": true,
+      "rouge_l": 0.23076923076923078,
+      "cosine_sim": 0.28646910190582275
+    },
+    {
+      "idx": 67,
+      "gt_depth": 1,
+      "pred_depth": 0,
+      "gt_annotation": "Close SSH session to 172.16.0.17 and return to local shell.",
+      "pred_annotation": "Logout from remote SSH session and return to local shell",
+      "depth_correct": false,
+      "rouge_l": 0.608695652173913,
+      "cosine_sim": 0.6143747568130493
+    },
+    {
+      "idx": 68,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Exit the current shell session.",
+      "pred_annotation": "End SSH session and return to local shell",
+      "depth_correct": true,
+      "rouge_l": 0.15384615384615385,
+      "cosine_sim": 0.6433041095733643
+    },
+    {
+      "idx": 69,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Connect from stephost to remote server over SSH.",
+      "pred_annotation": "Connect to remote host via SSH and provide credentials",
+      "depth_correct": true,
+      "rouge_l": 0.47058823529411764,
+      "cosine_sim": 0.6151125431060791
+    },
+    {
+      "idx": 70,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Change to /home/fai and list its contents.",
+      "pred_annotation": "...",
+      "depth_correct": false,
+      "rouge_l": 0,
+      "cosine_sim": 0.06738170981407166
+    },
+    {
+      "idx": 71,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Change into the config directory and list its subdirectories.",
+      "pred_annotation": "Enter config directory and display listed configuration items",
+      "depth_correct": true,
+      "rouge_l": 0.47058823529411764,
+      "cosine_sim": 0.47772347927093506
+    },
+    {
+      "idx": 72,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Change into the disk_config directory and list its files.",
+      "pred_annotation": "Enter disk_config directory and display its files",
+      "depth_correct": false,
+      "rouge_l": 0.6666666666666665,
+      "cosine_sim": 0.714234471321106
+    },
+    {
+      "idx": 73,
+      "gt_depth": -1,
+      "pred_depth": -1,
+      "gt_annotation": "Open HWPHYS disk configuration file in Emacs for inspection.",
+      "pred_annotation": "Open Emacs to edit configuration file",
+      "depth_correct": true,
+      "rouge_l": 0.4,
+      "cosine_sim": 0.25781428813934326
+    },
+    {
+      "idx": 74,
+      "gt_depth": -1,
+      "pred_depth": 0,
+      "gt_annotation": "Reopen HWPHYS disk configuration file in Emacs using sudo for elevated access.",
+      "pred_annotation": "Launch Emacs to inspect and edit the HWPHYS disk configuration file",
+      "depth_correct": false,
+      "rouge_l": 0.34782608695652173,
+      "cosine_sim": 0.7382656931877136
+    },
+    {
+      "idx": 75,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Review and edit HWPHYS disk configuration file in Emacs.",
+      "pred_annotation": "Launch Emacs with sudo to view/edit HWPHYS disk configuration",
+      "depth_correct": true,
+      "rouge_l": 0.4210526315789474,
+      "cosine_sim": 0.7788479924201965
+    },
+    {
+      "idx": 76,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Navigate within Emacs HWPHYS disk configuration, editing fields around ':missing' raid entries.",
+      "pred_annotation": "Navigate and scroll through Emacs buffer inspecting HWPHYS disk configuration",
+      "depth_correct": true,
+      "rouge_l": 0.45454545454545453,
+      "cosine_sim": 0.5198804140090942
+    },
+    {
+      "idx": 77,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Run 'sudo git diff' in disk_config directory to review recent HWPHYS RAID configuration changes.",
+      "pred_annotation": "Edit and save HWPHYS disk configuration file in Emacs",
+      "depth_correct": true,
+      "rouge_l": 0.16666666666666669,
+      "cosine_sim": 0.4561523199081421
+    },
+    {
+      "idx": 78,
+      "gt_depth": 0,
+      "pred_depth": 1,
+      "gt_annotation": "Compose a 'sudo git commit -am' command using shell history and navigation keys, preparing to commit HWPHYS changes.",
+      "pred_annotation": "View git diff of HWPHYS changes and confirm modifications",
+      "depth_correct": false,
+      "rouge_l": 0.2222222222222222,
+      "cosine_sim": 0.49636852741241455
+    },
+    {
+      "idx": 79,
+      "gt_depth": -1,
+      "pred_depth": 0,
+      "gt_annotation": "Open the HWPHYS disk configuration file in Emacs, navigate through it, mark the buffer as modified, then write and save a detailed problem description about systems with two disks before returning to the shell.",
+      "pred_annotation": "...",
+      "depth_correct": false,
+      "rouge_l": 0,
+      "cosine_sim": -0.025118529796600342
+    },
+    {
+      "idx": 80,
+      "gt_depth": 0,
+      "pred_depth": 1,
+      "gt_annotation": "Run a git commit with a detailed message explaining that the hardened disk configuration now requires 25 disks in the wrong order before causing trouble.",
+      "pred_annotation": "Insert a brief explanation of systems containing multiple disks into the HWPHYS configuration file and save the updated buffer.",
+      "depth_correct": false,
+      "rouge_l": 0.1818181818181818,
+      "cosine_sim": 0.35094255208969116
+    },
+    {
+      "idx": 81,
+      "gt_depth": 0,
+      "pred_depth": 1,
+      "gt_annotation": "Change directory two levels up in the filesystem.",
+      "pred_annotation": "Commit updated disk configuration and return to shell",
+      "depth_correct": false,
+      "rouge_l": 0.0,
+      "cosine_sim": 0.2754652202129364
+    },
+    {
+      "idx": 82,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Search shell history for the previous timed make-fai-cd build command.",
+      "pred_annotation": "Navigate two levels up in the filesystem via \"cd ../../\"",
+      "depth_correct": true,
+      "rouge_l": 0.1904761904761905,
+      "cosine_sim": 0.1769011914730072
+    },
+    {
+      "idx": 83,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Run sudo creation command that debootstraps and configures a Debian base system with required core packages.",
+      "pred_annotation": "Build and execute a detailed \u2018git commit \u2013am \u2026\u2019 command via reverse\u2011search edits",
+      "depth_correct": true,
+      "rouge_l": 0.13793103448275862,
+      "cosine_sim": 0.0087408646941185
+    },
+    {
+      "idx": 84,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Create and configure a Debian base system with debootstrap.",
+      "pred_annotation": "Deploy Debian base system using debootstrap under sudo, generating NFS\u2011root image",
+      "depth_correct": true,
+      "rouge_l": 0.380952380952381,
+      "cosine_sim": 0.5977218151092529
+    },
+    {
+      "idx": 85,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Install and configure FAI NFSROOT, downloading and setting up many Debian packages inside /srv/fai/nfsroot.",
+      "pred_annotation": "Download and install Debian base packages, update mirror indexes, and finalize the debootstrap operation.",
+      "depth_correct": true,
+      "rouge_l": 0.26666666666666666,
+      "cosine_sim": 0.4098321795463562
+    },
+    {
+      "idx": 86,
+      "gt_depth": 0,
+      "pred_depth": 1,
+      "gt_annotation": "Build a bootable FAI CD ISO image by copying configuration and mirror data, creating a SquashFS filesystem, formatting with FAT, and writing fai_cd.iso.",
+      "pred_annotation": "Finalise CD image creation, write ISO and report timing",
+      "depth_correct": false,
+      "rouge_l": 0.23529411764705882,
+      "cosine_sim": 0.454833447933197
+    },
+    {
+      "idx": 87,
+      "gt_depth": 1,
+      "pred_depth": 3,
+      "gt_annotation": "Log out from the remote shell session and close the SSH connection.",
+      "pred_annotation": "Close SSH session and terminate remote login",
+      "depth_correct": false,
+      "rouge_l": 0.2105263157894737,
+      "cosine_sim": 0.6501322388648987
+    },
+    {
+      "idx": 88,
+      "gt_depth": 0,
+      "pred_depth": 1,
+      "gt_annotation": "Copy fai_cd.iso from remote host 172.16.0.17 to a local ISO file using scp, watching transfer complete.",
+      "pred_annotation": "Complete construction of fai_cd.iso bootable image",
+      "depth_correct": false,
+      "rouge_l": 0.20689655172413796,
+      "cosine_sim": 0.4528389573097229
+    },
+    {
+      "idx": 89,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Exit the interactive shell session on stephost.",
+      "pred_annotation": "Terminate SSH session and log out",
+      "depth_correct": true,
+      "rouge_l": 0.15384615384615383,
+      "cosine_sim": 0.4992125332355499
+    },
+    {
+      "idx": 90,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Use reverse search to recall ssh command and connect to faiserver via SSH.",
+      "pred_annotation": "Establish SSH connection to remote server and provide credentials",
+      "depth_correct": false,
+      "rouge_l": 0.27272727272727276,
+      "cosine_sim": 0.32260242104530334
+    },
+    {
+      "idx": 91,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Change directory to /home/fai/config on faiserver and list its contents.",
+      "pred_annotation": "Change directory to /home/fai/config to prepare for further operations",
+      "depth_correct": false,
+      "rouge_l": 0.5217391304347826,
+      "cosine_sim": 0.7615535259246826
+    },
+    {
+      "idx": 92,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Change into package_config directory and grep through files, revealing GRUB-related package entries.",
+      "pred_annotation": "Change directory into package_config to explore its contents",
+      "depth_correct": false,
+      "rouge_l": 0.34782608695652173,
+      "cosine_sim": 0.38597917556762695
+    },
+    {
+      "idx": 93,
+      "gt_depth": -1,
+      "pred_depth": -1,
+      "gt_annotation": "Open Emacs to inspect and modify DEFAULT, GRUB, and GRUBEFI package configuration files, then save the updated files.",
+      "pred_annotation": "Edit GRUBEFI configuration file in vim, adjust parameters, and save changes",
+      "depth_correct": true,
+      "rouge_l": 0.27586206896551724,
+      "cosine_sim": 0.5451391339302063
+    },
+    {
+      "idx": 94,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Run git diff, then rerun it with sudo to review configuration and script changes in DEFAULT, GRUBEFI, and related setup files.",
+      "pred_annotation": "Execute \"git diff\" to review staged changes in package configuration files",
+      "depth_correct": true,
+      "rouge_l": 0.43749999999999994,
+      "cosine_sim": 0.5728956460952759
+    },
+    {
+      "idx": 95,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Stage DEFAULT, GRUBEFI and GRUB configuration changes with sudo git add, then commit them.",
+      "pred_annotation": "...",
+      "depth_correct": true,
+      "rouge_l": 0,
+      "cosine_sim": 0.0017548352479934692
+    },
+    {
+      "idx": 96,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Run sudo git status to show that only scripts/GRUBEFI/10-setup remains modified and unstaged on the master branch.",
+      "pred_annotation": "Review git status to confirm edited configuration files",
+      "depth_correct": true,
+      "rouge_l": 0.21428571428571425,
+      "cosine_sim": 0.4645232558250427
+    },
+    {
+      "idx": 97,
+      "gt_depth": 0,
+      "pred_depth": 1,
+      "gt_annotation": "Stage GRUBEFI setup script changes and commit them with a message specifying use of the x86_64 EFI GRUB image.",
+      "pred_annotation": "Commit staged configuration changes with sudo git commit, recording update to GRUBEFI settings",
+      "depth_correct": false,
+      "rouge_l": 0.18181818181818185,
+      "cosine_sim": 0.5244511365890503
+    },
+    {
+      "idx": 98,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Change to /home/fai and run a sudo bash 'time' command that builds the FAI nfsroot using debootstrap and installs base Debian packages",
+      "pred_annotation": "Build FAI CD ISO image from prepared filesystem",
+      "depth_correct": false,
+      "rouge_l": 0.12903225806451613,
+      "cosine_sim": 0.31775155663490295
+    },
+    {
+      "idx": 99,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Log out from the remote host, close the SSH connection, and return to the local demo@stephost shell prompt.",
+      "pred_annotation": "Terminate SSH session, disconnect from 172.16.0.17, and return to local shell",
+      "depth_correct": true,
+      "rouge_l": 0.36363636363636365,
+      "cosine_sim": 0.4633687734603882
+    },
+    {
+      "idx": 100,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Recall a previous scp command via reverse-i-search and copy fai_cd.iso from 172.16.0.17 to /disk1/isos/fai_dvd-date +%Y%m%d.iso, authenticating with password and monitoring the file transfer progress until completion.",
+      "pred_annotation": "Return to local demo@stephost shell after SCP transfer",
+      "depth_correct": true,
+      "rouge_l": 0.0816326530612245,
+      "cosine_sim": 0.48940759897232056
+    },
+    {
+      "idx": 101,
+      "gt_depth": 0,
+      "pred_depth": 1,
+      "gt_annotation": "Show terminal control sequence to disable bracketed paste mode followed by the word 'exit'.",
+      "pred_annotation": "Close SSH session and resume local shell prompt",
+      "depth_correct": false,
+      "rouge_l": 0.0,
+      "cosine_sim": 0.31987595558166504
+    },
+    {
+      "idx": 102,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Attempts SSH connection to host 172.16.0.17 but the connection fails due to no route to host.",
+      "pred_annotation": "Recalls recent \u2018ls\u2019 command via reverse\u2011search, runs socket inspection with\u00a0ss, attempts SSH to\u202f172.16.0.17, receives \u201cNo route to host\u201d error.",
+      "depth_correct": true,
+      "rouge_l": 0.5,
+      "cosine_sim": 0.6229638457298279
+    },
+    {
+      "idx": 103,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Lists active tear-off servers and their statuses, then retrieves their corresponding IP addresses.",
+      "pred_annotation": "Display server inventory with cm list",
+      "depth_correct": false,
+      "rouge_l": 0.1,
+      "cosine_sim": 0.2684388756752014
+    },
+    {
+      "idx": 104,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Exit current shell session.",
+      "pred_annotation": "Terminate SSH session following failed connection attempt",
+      "depth_correct": true,
+      "rouge_l": 0.18181818181818182,
+      "cosine_sim": 0.5155353546142578
+    },
+    {
+      "idx": 105,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "List running virtual machine tearoffs using cmlist command.",
+      "pred_annotation": "Display status of all tear\u2011off servers using custom cc list command",
+      "depth_correct": false,
+      "rouge_l": 0.2,
+      "cosine_sim": 0.565372109413147
+    },
+    {
+      "idx": 106,
+      "gt_depth": -1,
+      "pred_depth": -1,
+      "gt_annotation": "Open SSH connection to 172.16.0.17, provide password and land on the faiserver shell.",
+      "pred_annotation": "Connect to Faiserver (172.16.0.17) via SSH after locating its IP through reverse\u2011search",
+      "depth_correct": true,
+      "rouge_l": 0.375,
+      "cosine_sim": 0.6691917181015015
+    },
+    {
+      "idx": 107,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Change directory to /home/fai/config.",
+      "pred_annotation": "Change working directory to /home/fai/config",
+      "depth_correct": true,
+      "rouge_l": 0.923076923076923,
+      "cosine_sim": 0.9320812225341797
+    },
+    {
+      "idx": 108,
+      "gt_depth": -1,
+      "pred_depth": 0,
+      "gt_annotation": "Attempt to view repo history with `git log`, hit \u201cdubious ownership\u201d; rerun via `sudo git log` and open commit history (pager).",
+      "pred_annotation": "View recent commits in local repository and encounter ownership warning",
+      "depth_correct": false,
+      "rouge_l": 0.12903225806451613,
+      "cosine_sim": 0.6584410071372986
+    },
+    {
+      "idx": 109,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Exit git log pager and return to shell.",
+      "pred_annotation": "Close git log pager and return to shell prompt",
+      "depth_correct": true,
+      "rouge_l": 0.823529411764706,
+      "cosine_sim": 0.8828631043434143
+    },
+    {
+      "idx": 110,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Run `git diff master~1`, receiving a \u201cNot a git repository\u201d warning and usage output.",
+      "pred_annotation": "Display Git diff output and close pager",
+      "depth_correct": true,
+      "rouge_l": 0.27272727272727276,
+      "cosine_sim": 0.5659322738647461
+    },
+    {
+      "idx": 111,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "View incremental diffs of `scripts/GRUBEFI/10-setup` using `sudo git diff` against multiple ancestor commits (master~10, ~12, ~20, ~30).",
+      "pred_annotation": "Execute sudo git diff comparing master to its tenth predecessor, revealing newly created GRUBEFI scripts",
+      "depth_correct": true,
+      "rouge_l": 0.2222222222222222,
+      "cosine_sim": 0.8219008445739746
+    },
+    {
+      "idx": 112,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Review diffs for GRUB EFI: compare `scripts/GRUBEFI/10-setup` (master~30) and then `package_config/GRUBEFI` against master~30/~20/~10/~5, confirming new GRUBEFI config (HWAMD64 + grub-efi-amd64).",
+      "pred_annotation": "Scroll through and review the verbose git diff output for scripts/GRUBEFI/10\u2011setup",
+      "depth_correct": true,
+      "rouge_l": 0.3111111111111111,
+      "cosine_sim": 0.579490065574646
+    },
+    {
+      "idx": 113,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Query APT cache for \u201cgrub-efi\u201d packages and list available EFI variants.",
+      "pred_annotation": "Update package index and install necessary utilities via sudo apt",
+      "depth_correct": false,
+      "rouge_l": 0.1818181818181818,
+      "cosine_sim": 0.15559038519859314
+    },
+    {
+      "idx": 114,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Recall history, tab-complete to disk_config/HWPHYS, authenticate sudo, and run `git diff master~15` to review HWPHYS changes (GPT+EFI partitioning and updated RAID/UUID layout).",
+      "pred_annotation": "Search APT cache for grub\u2011efi packages",
+      "depth_correct": true,
+      "rouge_l": 0.05714285714285715,
+      "cosine_sim": 0.256940633058548
+    },
+    {
+      "idx": 115,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Log out of remote SSH session and return to local shell.",
+      "pred_annotation": "Disconnect from remote server and close SSH session",
+      "depth_correct": true,
+      "rouge_l": 0.3157894736842105,
+      "cosine_sim": 0.6810215711593628
+    },
+    {
+      "idx": 116,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "Attempt to view /run/mdadm/map; permission denied.",
+      "pred_annotation": "Attempt to view /run/mdadm/map, received permission denied",
+      "depth_correct": true,
+      "rouge_l": 0.9411764705882353,
+      "cosine_sim": 0.9889892339706421
+    },
+    {
+      "idx": 117,
+      "gt_depth": 1,
+      "pred_depth": 0,
+      "gt_annotation": "Re-run `cat /run/mdadm/map` command, then exit the shell session.",
+      "pred_annotation": "Attempt to view /run/mdadm/map, receive permission denial and abandon operation",
+      "depth_correct": false,
+      "rouge_l": 0.25,
+      "cosine_sim": 0.7655785083770752
+    },
+    {
+      "idx": 118,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Attempt to connect to remote host 172.16.0.17 via SSH, but connection fails due to network unreachable.",
+      "pred_annotation": "Initiate SSH connection to 172.16.0.17",
+      "depth_correct": false,
+      "rouge_l": 0.44444444444444436,
+      "cosine_sim": 0.776695191860199
+    },
+    {
+      "idx": 119,
+      "gt_depth": 0,
+      "pred_depth": 0,
+      "gt_annotation": "List active servers or virtual machine instances using `cm list` command.",
+      "pred_annotation": "Execute \"cm list\" to query and display status of all tear\u2011off servers",
+      "depth_correct": true,
+      "rouge_l": 0.16666666666666669,
+      "cosine_sim": 0.5737388134002686
+    },
+    {
+      "idx": 120,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Exit the current shell session.",
+      "pred_annotation": "Close current shell session",
+      "depth_correct": true,
+      "rouge_l": 0.6666666666666665,
+      "cosine_sim": 0.8134968280792236
+    },
+    {
+      "idx": 121,
+      "gt_depth": 0,
+      "pred_depth": -1,
+      "gt_annotation": "Attempts to connect to remote host 172.16.0.17 via SSH but fails password attempt.",
+      "pred_annotation": "Establish SSH session to demo@172.16.0.17 and supply password \"museum\"",
+      "depth_correct": false,
+      "rouge_l": 0.41379310344827586,
+      "cosine_sim": 0.6012587547302246
+    },
+    {
+      "idx": 122,
+      "gt_depth": -1,
+      "pred_depth": -1,
+      "gt_annotation": "Connects to remote host 172.16.0.17 via SSH and logs in successfully.",
+      "pred_annotation": "Begin SSH session to 172.16.0.17 as demo",
+      "depth_correct": true,
+      "rouge_l": 0.41666666666666663,
+      "cosine_sim": 0.7054480910301208
+    },
+    {
+      "idx": 123,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Log out from remote host and close SSH connection.",
+      "pred_annotation": "Close SSH session and terminate connection",
+      "depth_correct": true,
+      "rouge_l": 0.4,
+      "cosine_sim": 0.7367125749588013
+    },
+    {
+      "idx": 124,
+      "gt_depth": 1,
+      "pred_depth": 1,
+      "gt_annotation": "Exit shell session on local host.",
+      "pred_annotation": "Close SSH session and return to local shell",
+      "depth_correct": true,
+      "rouge_l": 0.28571428571428575,
+      "cosine_sim": 0.7505713701248169
+    }
+  ]
+}
