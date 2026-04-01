@@ -1,5 +1,5 @@
 # AutoDocs: From Logs to Docs
-Upload your Asciinema terminal recording and convert it into documentation that you can share with your friends or colleagues.
+Upload your Asciinema terminal recording and convert it into documentation that you can share with your friends or colleagues. This [project](https://wiki.faikvm.com/mediawiki/index.php/Main_Page#AutoDoc) is created under the mentorship program of The Human Feedback Foundation and Linux Foundation, with mentors [Julia Longtin](https://github.com/julialongtin) and [Arthur Wolf](https://github.com/arthurwolf).
 
 ## Our webapp
 Access our hosted webapp [here](https://autodocs-production.up.railway.app) or watch our [demo](https://drive.google.com/file/d/1ssCTLpFQCOF0IWctK1j3NYFi1jjNiI9B/view?usp=sharing)!
@@ -8,10 +8,10 @@ Access our hosted webapp [here](https://autodocs-production.up.railway.app) or w
 ## Architecture
 Our webapp is built on **Next.js** with a **PostgreSQL** database. [Our model pipeline](https://github.com/CSC392-CSC492-Building-AI-ML-systems/AutoDocs-Winter2026/blob/main/host_pipeline.ipynb) is currently hosted using Colab Pro and exposed to the backend using an Ngrok tunnel.
 <img width="1176" height="611" alt="{B8429BF9-6917-4791-A6F2-37BBD3A316B2}" src="https://github.com/user-attachments/assets/1f6d89c0-9a8a-4385-8824-3266ab31e22a" />
-Parser 0 converts the Asciinema recordings into XML format for easier processing.
-Model 0, our finetuned Microsoft Phi model, takes the XML input and categorizes it into new or old events.
-Parser 1 wraps the created events with the relevant XML parts.
-Model 1, our finetuned Deepseek R1 model, takes the events and generates the event tree by finding the relationship between the events.
+- Parser 0 converts the Asciinema recordings into XML format for easier processing.
+- Model 0, our finetuned Microsoft Phi model, takes the XML input and categorizes it into new or old events.
+- Parser 1 wraps the created events with the relevant XML parts.
+- Model 1, our finetuned Deepseek R1 model, takes the events and generates the event tree by finding the relationship between the events.
 
 ## Documentation & Links
 To learn more about how the models are fine-tuned and deployed, visit the following resources:
