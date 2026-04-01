@@ -1,15 +1,32 @@
-# Use a Node.js base image
-FROM node:20-alpine AS development
-# Install necessary packages (like libc6-compat for Next.js on alpine)
+# --------- Base ---------
+FROM node:20-alpine AS base
 RUN apk add --no-cache libc6-compat
-# Set the working directory inside the container
 WORKDIR /app
-# Copy package.json and package-lock.json and install dependencies
+
+# --------- Dependencies ---------
+FROM base AS deps
 COPY package*.json ./
-RUN npm install
-# Copy the rest of the application code
+RUN npm ci
+
+# --------- Builder ---------
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Expose the port Next.js runs on (default 3000)
+RUN npm run build
+
+# --------- Runner ---------
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Copy only necessary files
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/package.json ./package.json
+COPY --from=deps /app/node_modules ./node_modules
+
 EXPOSE 3000
-# Command to run the development server
-CMD ["npm", "run", "dev"]
+
+# Start production server
+CMD ["npm", "start"]

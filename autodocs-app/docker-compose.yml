@@ -15,15 +15,16 @@ services:
 
   server:
     build:
-        context: .
-        dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile
+    container_name: autodocs-server
+    restart: unless-stopped
     ports:
       - "3000:3000"
-    volumes:
-      - .:/app
-      - /app/node_modules
+    depends_on:
+      - postgres
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       JWT_SECRET: ${JWT_SECRET}
       ML_URL: ${ML_URL}
