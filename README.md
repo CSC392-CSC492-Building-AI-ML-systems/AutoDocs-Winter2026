@@ -17,7 +17,7 @@ Model 1, our finetuned Deepseek R1 model, takes the events and generates the eve
 
 ## Documentation
 To learn more about how the models are finetuned, visit these READMEs:
-<to be added>
+- [Generating thinking tokens](https://github.com/CSC392-CSC492-Building-AI-ML-systems/AutoDocs-Winter2026/blob/main/data-processing/model_0_streaming/guide_to_thinking.md)
 
 ### White Paper
 Read our full paper here. (to be added)
