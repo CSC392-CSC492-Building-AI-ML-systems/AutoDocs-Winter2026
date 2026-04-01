@@ -2,9 +2,7 @@
 Upload your Asciinema terminal recording and convert it into documentation that you can share with your friends or colleagues.
 
 ## Our webapp
-Access our hosted webapp [here](https://autodocs-winter2026-production.up.railway.app)!
-or
-Watch our [demo](https://drive.google.com/file/d/1ssCTLpFQCOF0IWctK1j3NYFi1jjNiI9B/view?usp=sharing)!
+Access our hosted webapp [here](https://autodocs-production.up.railway.app) or watch our [demo](https://drive.google.com/file/d/1ssCTLpFQCOF0IWctK1j3NYFi1jjNiI9B/view?usp=sharing)!
 *Note that the generation feature may not work fully as the models are not hosted due to usage limits.
 
 ## Archeticture
