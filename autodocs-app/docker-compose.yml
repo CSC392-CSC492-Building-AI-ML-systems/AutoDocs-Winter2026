@@ -4,14 +4,30 @@ services:
     container_name: autodocs-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: autodocs
-      POSTGRES_PASSWORD: autodocs
-      POSTGRES_DB: autodocs
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d:ro
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: autodocs-server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      JWT_SECRET: ${JWT_SECRET}
+      ML_URL: ${ML_URL}
 
 volumes:
   pgdata:
