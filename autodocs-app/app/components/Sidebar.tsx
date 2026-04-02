@@ -1,14 +1,26 @@
 "use client";
 
-import { Home, Upload, Settings, User, LogOut, FileText } from 'lucide-react';
+import Image from 'next/image';
+import { Home, Settings, User, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { logoutSession } from '@/app/lib/auth';
 
+export type SidebarView = 'sessions' | 'profile' | 'settings';
+
 interface SidebarProps {
-  onNavigate?: (view: string) => void;
+  activeView?: SidebarView;
 }
 
-export function Sidebar({ onNavigate }: SidebarProps) {
+function getNavItemClasses(isActive: boolean): string {
+  return [
+    'w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
+    isActive
+      ? 'bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/80'
+      : 'text-sidebar-foreground hover:bg-sidebar-accent',
+  ].join(' ');
+}
+
+export function Sidebar({ activeView = 'sessions' }: SidebarProps) {
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -21,11 +33,9 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       {/* Logo/Header */}
       <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-            <FileText className="w-6 h-6 text-primary-foreground" />
-          </div>
+          <Image src="/logo.svg" alt="AutoDocs" width={64} height={64} className="h-16 w-16 shrink-0" />
           <div>
-            <h2 className="text-sidebar-foreground">TerminalDocs</h2>
+            <h2 className="text-sidebar-foreground">AutoDocs</h2>
             <p className="text-xs text-muted-foreground">Session Manager</p>
           </div>
         </div>
@@ -35,18 +45,11 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       <nav className="flex-1 p-4">
         <div className="space-y-1">
           <button
-            onClick={() => onNavigate?.('home')}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/80 transition-colors"
+            onClick={() => router.push('/home')}
+            className={getNavItemClasses(activeView === 'sessions')}
           >
             <Home className="w-5 h-5" />
             <span>Sessions</span>
-          </button>
-          <button
-            onClick={() => onNavigate?.('upload')}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
-          >
-            <Upload className="w-5 h-5" />
-            <span>Upload New</span>
           </button>
         </div>
       </nav>
@@ -54,17 +57,23 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       {/* Account Section */}
       <div className="p-4 border-t border-sidebar-border">
         <div className="space-y-1">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
+          <button
+            onClick={() => router.push('/profile')}
+            className={getNavItemClasses(activeView === 'profile')}
+          >
             <User className="w-5 h-5" />
             <span>Profile</span>
           </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
+          <button
+            onClick={() => router.push('/settings')}
+            className={getNavItemClasses(activeView === 'settings')}
+          >
             <Settings className="w-5 h-5" />
             <span>Settings</span>
           </button>
           <button
             onClick={() => void handleSignOut()}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+            className={getNavItemClasses(false)}
           >
             <LogOut className="w-5 h-5" />
             <span>Sign Out</span>
