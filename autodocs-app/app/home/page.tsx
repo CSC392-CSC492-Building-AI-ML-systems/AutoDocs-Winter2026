@@ -1,5 +1,5 @@
 "use client"
-import { Sidebar } from '@/app/components/Sidebar';
+import { AppShell } from '@/app/components/AppShell';
 import { UploadTile } from '@/app/components/UploadTile';
 import { SessionTile } from '@/app/components/SessionTile';
 import { SessionDetailModal } from '@/app/components/SessionDetailModal';
@@ -212,96 +212,77 @@ export default function App() {
     handleCloseModal();
   };
 
-  if (checkingAuth) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-6 h-6 border-2 border-foreground border-t-transparent rounded-full animate-spin opacity-40" />
-          <span className="text-muted-foreground text-sm font-mono">Checking session...</span>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar />
-
-      <main className="flex-1 overflow-auto">
-        <div className="p-8 space-y-12">
-
-          {/* ── My Sessions ─────────────────────────────────────── */}
-          <section>
-            <div className="mb-6">
-              <h1 className="text-foreground mb-1">Terminal Sessions</h1>
-              <p className="text-muted-foreground">
-                Upload and explore hierarchical event logs from your terminal sessions
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <UploadTile onUploadSuccess={fetchSessions} />
-
-              {loadingSessions && <SessionGridSkeleton />}
-
-              {!loadingSessions && sessionsError && (
-                <div className="col-span-full text-sm text-destructive font-mono bg-destructive/10 rounded-lg p-4 border border-destructive/20">
-                  {sessionsError}
-                </div>
-              )}
-
-              {!loadingSessions && !sessionsError && sessions.length === 0 && (
-                <div className="col-span-full text-sm text-muted-foreground font-mono p-4">
-                  No sessions yet. Upload your first terminal session to get started.
-                </div>
-              )}
-
-              {!loadingSessions && sessions.map((session) => (
-                <SessionTile
-                  key={session.id}
-                  session={session}
-                  onClick={() => handleSessionClick(session)}
-                />
-              ))}
-            </div>
-          </section>
-
-          {/* ── Shared With Me ──────────────────────────────────── */}
-          <section>
-            <div className="mb-6">
-              <h2 className="text-foreground mb-1">Shared With Me</h2>
-              <p className="text-muted-foreground">
-                Terminal sessions that others have shared with you
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {loadingShared && <SessionGridSkeleton />}
-
-              {!loadingShared && sharedError && (
-                <div className="col-span-full text-sm text-destructive font-mono bg-destructive/10 rounded-lg p-4 border border-destructive/20">
-                  {sharedError}
-                </div>
-              )}
-
-              {!loadingShared && !sharedError && sharedSessions.length === 0 && (
-                <div className="col-span-full text-sm text-muted-foreground font-mono p-4">
-                  Nothing shared with you yet.
-                </div>
-              )}
-
-              {!loadingShared && sharedSessions.map((session) => (
-                <SessionTile
-                  key={session.id}
-                  session={session}
-                  onClick={() => handleSessionClick(session)}
-                />
-              ))}
-            </div>
-          </section>
-
+    <AppShell activeView="sessions">
+      {/* ── My Sessions ─────────────────────────────────────── */}
+      <section>
+        <div className="mb-6">
+          <h1 className="text-foreground mb-1">Terminal Sessions</h1>
+          <p className="text-muted-foreground">
+            Upload and explore hierarchical event logs from your terminal sessions
+          </p>
         </div>
-      </main>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {!checkingAuth && <UploadTile onUploadSuccess={fetchSessions} />}
+
+          {(checkingAuth || loadingSessions) && <SessionGridSkeleton />}
+
+          {!checkingAuth && !loadingSessions && sessionsError && (
+            <div className="col-span-full text-sm text-destructive font-mono bg-destructive/10 rounded-lg p-4 border border-destructive/20">
+              {sessionsError}
+            </div>
+          )}
+
+          {!checkingAuth && !loadingSessions && !sessionsError && sessions.length === 0 && (
+            <div className="col-span-full text-sm text-muted-foreground font-mono p-4">
+              No sessions yet. Upload your first terminal session to get started.
+            </div>
+          )}
+
+          {!checkingAuth && !loadingSessions && sessions.map((session) => (
+            <SessionTile
+              key={session.id}
+              session={session}
+              onClick={() => handleSessionClick(session)}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* ── Shared With Me ──────────────────────────────────── */}
+      <section>
+        <div className="mb-6">
+          <h2 className="text-foreground mb-1">Shared With Me</h2>
+          <p className="text-muted-foreground">
+            Terminal sessions that others have shared with you
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {(checkingAuth || loadingShared) && <SessionGridSkeleton />}
+
+          {!checkingAuth && !loadingShared && sharedError && (
+            <div className="col-span-full text-sm text-destructive font-mono bg-destructive/10 rounded-lg p-4 border border-destructive/20">
+              {sharedError}
+            </div>
+          )}
+
+          {!checkingAuth && !loadingShared && !sharedError && sharedSessions.length === 0 && (
+            <div className="col-span-full text-sm text-muted-foreground font-mono p-4">
+              Nothing shared with you yet.
+            </div>
+          )}
+
+          {!checkingAuth && !loadingShared && sharedSessions.map((session) => (
+            <SessionTile
+              key={session.id}
+              session={session}
+              onClick={() => handleSessionClick(session)}
+            />
+          ))}
+        </div>
+      </section>
 
       <SessionDetailModal
         isOpen={isModalOpen}
@@ -309,6 +290,6 @@ export default function App() {
         session={selectedSession}
         onDeleteSession={handleDeleteSession}
       />
-    </div>
+    </AppShell>
   );
 }

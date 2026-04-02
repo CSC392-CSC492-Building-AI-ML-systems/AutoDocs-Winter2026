@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/app/lib/server/db';
 import { signAuthToken } from '@/app/lib/server/auth';
@@ -14,11 +13,6 @@ import {
 
 interface ChangeNameBody {
   name?: string;
-  currentPassword?: string;
-}
-
-interface UserWithPassword extends SessionUser {
-  password_hash: string;
 }
 
 async function getAuthenticatedUser(request: NextRequest): Promise<{
@@ -61,13 +55,9 @@ export async function PATCH(request: NextRequest) {
 
     const body = (await request.json()) as ChangeNameBody;
     const name = body.name?.trim();
-    const currentPassword = body.currentPassword;
 
-    if (!name || !currentPassword) {
-      return NextResponse.json(
-        { message: 'name and currentPassword are required.' },
-        { status: 400 },
-      );
+    if (!name) {
+      return NextResponse.json({ message: 'name is required.' }, { status: 400 });
     }
 
     if (name === authenticated.user.name) {
@@ -77,8 +67,8 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const currentUserResult = await db.query<UserWithPassword>(
-      `SELECT id, email, name, created_at, password_hash
+    const currentUserResult = await db.query<SessionUser>(
+      `SELECT id, email, name, created_at
        FROM users
        WHERE id = $1`,
       [authenticated.user.id],
@@ -89,11 +79,6 @@ export async function PATCH(request: NextRequest) {
       const response = NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
       clearSessionCookies(response);
       return response;
-    }
-
-    const passwordOk = await bcrypt.compare(currentPassword, currentUser.password_hash);
-    if (!passwordOk) {
-      return NextResponse.json({ message: 'Current password is incorrect.' }, { status: 401 });
     }
 
     const updatedResult = await db.query<SessionUser>(
