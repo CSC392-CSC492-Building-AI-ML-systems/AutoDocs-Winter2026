@@ -10,11 +10,16 @@ Required values in `autodocs-app/.env.local`:
 DATABASE_URL="postgresql://autodocs:autodocs@localhost:5432/autodocs"
 JWT_SECRET="paste-generated-value-here"
 ML_URL="https://your-ml-service-url/"
+# Optional: enables the durable local-CPU upload job protocol.
+AUTODOCS_PROCESSING_MODE="local-cpu-jobs"
 ```
 
 - `DATABASE_URL`: Postgres connection string for the app database.
 - `JWT_SECRET`: secret used to sign auth/session JWTs.
 - `ML_URL`: URL for the AI service called by `POST /api/terminal-sessions`.
+- `AUTODOCS_PROCESSING_MODE`: omit this variable for the existing synchronous
+  Colab/ngrok-compatible upload path. Set it to `local-cpu-jobs` only when
+  `ML_URL` points at this repository's `ml-service`, which implements `/jobs`.
 
 Generate a strong local secret with:
 
@@ -60,6 +65,36 @@ docker exec -it autodocs-postgres psql -U autodocs -d autodocs -c "\d sessions"
 docker exec -it autodocs-postgres psql -U autodocs -d autodocs -c "\d terminal_sessions"
 docker exec -it autodocs-postgres psql -U autodocs -d autodocs -c "\d terminal_session_access"
 ```
+
+## Local CPU inference option
+
+The original `ML_URL` behavior remains the default: uploads call the legacy
+`POST /` ML endpoint and wait for its response. This is compatible with the
+hosted Colab/ngrok pipeline.
+
+To opt into local CPU inference with durable, observable uploads:
+
+1. Install and start [`../ml-service`](../ml-service/README.md) on the same
+   host or a private network endpoint. It requires Ollama with a Model 0 GGUF
+   registered as `model0` and `gpt-oss:20b` (both names are configurable).
+2. Apply `db/init/004_processing_jobs.sql` to an existing Postgres database.
+   On a new Docker volume it is applied automatically with the other init
+   scripts; do not reset an existing volume merely to apply this migration.
+3. Set the web app environment values:
+
+   ```env
+   ML_URL="http://127.0.0.1:8500"
+   AUTODOCS_PROCESSING_MODE="local-cpu-jobs"
+   ```
+
+4. Start the web app normally. New uploads return immediately with a persisted
+   job ID, and the UI shows parsing, boundary detection, event grouping,
+   annotation, and finalization progress with a timestamped event log.
+
+Only one local CPU job runs at a time so each inference can use the configured
+CPU threads without competing uploads starving it. Reloading the page resumes
+the active job display. If the ML service restarts while a job is running, that
+job is marked failed explicitly rather than reported as still running.
 
 ## Running Locally
 
