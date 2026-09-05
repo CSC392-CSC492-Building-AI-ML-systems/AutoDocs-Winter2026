@@ -1,180 +1,264 @@
-"use client"
-import { Upload, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import { useState, useRef } from 'react';
+"use client";
 
-type UploadState = 'idle' | 'uploading' | 'success' | 'error';
+import { IconAlertTriangle, IconCheck, IconCloudUpload, IconLoader2 } from '@tabler/icons-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { UploadProgressPanel } from '@/app/components/UploadProgressPanel';
+import type { MlJobStatus } from '@/app/lib/server/ml-jobs';
 
-export function UploadTile({ onUploadSuccess }: { onUploadSuccess?: () => void }) {
-  const [isDragging, setIsDragging] = useState(false);
-  const [uploadState, setUploadState] = useState<UploadState>('idle');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+type UploadState = 'idle' | 'registering' | 'processing' | 'success' | 'error';
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
+interface LegacyUploadResponse {
+    terminalSession?: { id: string };
+    message?: string;
+}
 
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
+interface JobAvailabilityResponse {
+    enabled?: boolean;
+    job?: MlJobStatus | null;
+}
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      void handleFileUpload(files[0]);
-    }
-  };
+interface UploadTileProperties {
+    onUploadSuccess?: () => void;
+}
 
-  const handleClick = () => {
-    if (uploadState === 'uploading') return;
-    fileInputRef.current?.click();
-  };
+/** Uploads recordings through the configured legacy or local-CPU protocol. */
+export function UploadTile({ onUploadSuccess }: UploadTileProperties) {
+    const [isDragging, setIsDragging] = useState(false);
+    const [uploadState, setUploadState] = useState<UploadState>('idle');
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [job, setJob] = useState<MlJobStatus | null>(null);
+    const [isLocalCpuJobsEnabled, setIsLocalCpuJobsEnabled] = useState(false);
+    const [isProcessingModeResolved, setIsProcessingModeResolved] = useState(false);
+    const fileInputReference = useRef<HTMLInputElement>(null);
+    const notifiedJobReference = useRef<string | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      void handleFileUpload(files[0]);
-    }
-    // Reset input so the same file can be re-uploaded if needed
-    e.target.value = '';
-  };
+    const pollJob = useCallback(async (jobId: string): Promise<void> => {
+        const response = await fetch(`/api/terminal-session-jobs/${encodeURIComponent(jobId)}`, { cache: 'no-store' });
+        const body = await response.json().catch(() => ({}));
 
-  const handleFileUpload = async (file: File) => {
-    setUploadState('uploading');
-    setErrorMessage(null);
-
-    try {
-      const content = await file.text();
-      const extension = file.name.split('.').pop()?.toLowerCase();
-
-      if (!['cast'].includes(extension || '')) {
-        throw new Error('Unsupported file type. Please upload a .cast file.');
-      }
-
-      const title = file.name.replace(/\.[^/.]+$/, '');
-      const lines = content.split('\n').map(l => l.trim()).filter(Boolean);
-
-      if (lines.length < 2) {
-        throw new Error('Invalid .cast file format.');
-      }
-
-      // Last event line (skip header at index 0)
-      const lastLine = lines[lines.length - 1];
-
-      let durationSeconds: number;
-
-      try {
-        const parsed = JSON.parse(lastLine);
-        if (!Array.isArray(parsed) || typeof parsed[0] !== 'number') {
-          throw new Error();
+        if (!response.ok) {
+            throw new Error(body.message ?? `Progress check failed with status ${response.status}`);
         }
-        durationSeconds = Math.round(parsed[0]);
-      } catch {
-        throw new Error('Failed to parse duration from .cast file.');
-      }
 
-      const res = await fetch('/api/terminal-sessions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, durationSeconds, content }),
-      });
+        const nextJob = body.job as MlJobStatus;
+        setJob(nextJob);
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message ?? `Upload failed with status ${res.status}`);
-      }
+        if (nextJob.status === 'failed') {
+            setErrorMessage(nextJob.error ?? 'Analysis failed.');
+            setUploadState('error');
+        }
 
-      setUploadState('success');
-      onUploadSuccess?.();
+        if (nextJob.status === 'completed') {
+            setUploadState('success');
 
-      setTimeout(() => setUploadState('idle'), 2500);
-    } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : 'Upload failed.');
-      setUploadState('error');
-      setTimeout(() => setUploadState('idle'), 3000);
-    }
-  };
+            if (notifiedJobReference.current !== jobId) {
+                notifiedJobReference.current = jobId;
+                onUploadSuccess?.();
+            }
+        }
+    }, [onUploadSuccess]);
 
-  const stateConfig = {
-    idle: {
-      icon: <Upload className="w-8 h-8 text-primary" />,
-      iconBg: 'bg-primary/10 group-hover:bg-primary/20',
-      title: 'Upload Session',
-      subtitle: 'Drop terminal recording here or click to browse',
-      badge: <div className="px-4 py-2 bg-primary text-primary-foreground rounded-lg group-hover:bg-primary/90 transition-colors">Choose File</div>,
-    },
-    uploading: {
-      icon: <Loader2 className="w-8 h-8 text-primary animate-spin" />,
-      iconBg: 'bg-primary/10',
-      title: 'Uploading...',
-      subtitle: 'Please wait while your session is being uploaded',
-      badge: null,
-    },
-    success: {
-      icon: <CheckCircle className="w-8 h-8 text-emerald-400" />,
-      iconBg: 'bg-emerald-400/10',
-      title: 'Upload Successful',
-      subtitle: 'Your session has been added',
-      badge: null,
-    },
-    error: {
-      icon: <AlertCircle className="w-8 h-8 text-destructive" />,
-      iconBg: 'bg-destructive/10',
-      title: 'Upload Failed',
-      subtitle: errorMessage ?? 'Something went wrong. Please try again.',
-      badge: null,
-    },
-  };
+    useEffect(() => {
+        let isDisposed = false;
 
-  const cfg = stateConfig[uploadState];
+        const resumeJob = async (): Promise<void> => {
+            try {
+                const response = await fetch('/api/terminal-session-jobs', { cache: 'no-store' });
+                const body = await response.json() as JobAvailabilityResponse;
 
-  return (
-    <div
-      className={`bg-card rounded-xl border-2 border-dashed p-6 transition-all group ${
-        uploadState === 'uploading'
-          ? 'cursor-wait border-border opacity-70'
-          : uploadState === 'success'
-          ? 'cursor-default border-emerald-500/40'
-          : uploadState === 'error'
-          ? 'cursor-pointer border-destructive/40'
-          : isDragging
-          ? 'cursor-copy border-primary bg-primary/5'
-          : 'cursor-pointer border-border hover:border-primary'
-      }`}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-      onClick={handleClick}
-    >
-      <input
-        ref={fileInputRef}
-        type="file"
-        className="hidden"
-        accept=".txt,.cast,.ttyrec,.log"
-        onChange={handleFileChange}
-      />
+                if (isDisposed) {
+                    return;
+                }
 
-      <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
-        <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-colors ${cfg.iconBg}`}>
-          {cfg.icon}
+                setIsLocalCpuJobsEnabled(body.enabled === true);
+                setIsProcessingModeResolved(true);
+
+                if (body.enabled && body.job) {
+                    setJob(body.job);
+                    setUploadState('processing');
+                }
+            } catch {
+                // Legacy deployments do not require the job status endpoint.
+                if (!isDisposed) {
+                    setIsProcessingModeResolved(true);
+                }
+            }
+        };
+
+        void resumeJob();
+
+        return () => {
+            isDisposed = true;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!job || ['completed', 'failed'].includes(job.status)) {
+            return;
+        }
+
+        const timer = setInterval(() => {
+            void pollJob(job.id).catch((error: unknown) => {
+                setErrorMessage(error instanceof Error ? error.message : 'Unable to read upload progress.');
+                setUploadState('error');
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [job, pollJob]);
+
+    const validateAndReadFile = async (file: File): Promise<{ title: string; durationSeconds: number; content: string }> => {
+        if (file.name.split('.').pop()?.toLowerCase() !== 'cast') {
+            throw new Error('Unsupported file type. Please upload a .cast file.');
+        }
+
+        const content = await file.text();
+        const lines = content.split('\n').map((line) => line.trim()).filter(Boolean);
+
+        if (lines.length < 2) {
+            throw new Error('Invalid .cast file format.');
+        }
+
+        const lastEvent = JSON.parse(lines.at(-1) ?? '');
+
+        if (!Array.isArray(lastEvent) || typeof lastEvent[0] !== 'number') {
+            throw new Error('Failed to parse duration from .cast file.');
+        }
+
+        return {
+            title: file.name.replace(/\.[^/.]+$/, ''),
+            durationSeconds: Math.round(lastEvent[0]),
+            content,
+        };
+    };
+
+    const uploadThroughLegacyEndpoint = async (input: { title: string; durationSeconds: number; content: string }): Promise<void> => {
+        setUploadState('processing');
+
+        const response = await fetch('/api/terminal-sessions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(input),
+        });
+        const body = await response.json().catch(() => ({})) as LegacyUploadResponse;
+
+        if (!response.ok) {
+            throw new Error(body.message ?? `Could not process upload (${response.status}).`);
+        }
+
+        setUploadState('success');
+        onUploadSuccess?.();
+    };
+
+    const uploadThroughLocalCpuJobs = async (input: { title: string; durationSeconds: number; content: string }): Promise<void> => {
+        const response = await fetch('/api/terminal-session-jobs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(input),
+        });
+        const body = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(body.message ?? `Could not start analysis (${response.status}).`);
+        }
+
+        setJob(body.job as MlJobStatus);
+        setUploadState('processing');
+    };
+
+    const handleFileUpload = async (file: File): Promise<void> => {
+        setUploadState('registering');
+        setErrorMessage(null);
+        setJob(null);
+
+        try {
+            const input = await validateAndReadFile(file);
+
+            if (isLocalCpuJobsEnabled) {
+                await uploadThroughLocalCpuJobs(input);
+            } else {
+                await uploadThroughLegacyEndpoint(input);
+            }
+        } catch (error) {
+            setErrorMessage(error instanceof Error ? error.message : 'Upload failed.');
+            setUploadState('error');
+        }
+    };
+
+    const isBusy = !isProcessingModeResolved || ['registering', 'processing'].includes(uploadState);
+    const isLocalJob = isLocalCpuJobsEnabled && uploadState === 'processing';
+    const title = !isProcessingModeResolved
+        ? 'Checking upload configuration…'
+        : uploadState === 'registering'
+        ? 'Preparing upload…'
+        : uploadState === 'processing'
+            ? isLocalJob ? 'Analysis continues in the background' : 'Processing upload…'
+            : uploadState === 'success'
+                ? 'Session saved'
+                : uploadState === 'error'
+                    ? 'Upload failed'
+                    : 'Upload Session';
+    const subtitle = !isProcessingModeResolved
+        ? 'Preparing the configured upload workflow.'
+        : uploadState === 'registering'
+        ? isLocalCpuJobsEnabled ? 'Saving your upload as a durable analysis job.' : 'Reading your recording.'
+        : uploadState === 'processing'
+            ? isLocalJob ? 'You can safely keep this page open or reload it; detailed progress is below.' : 'The configured analyzer is processing this recording.'
+            : uploadState === 'success'
+                ? 'Your annotated session is ready.'
+                : uploadState === 'error'
+                    ? errorMessage
+                    : 'Drop an asciinema .cast recording here or click to browse.';
+    const icon = uploadState === 'success'
+        ? <IconCheck className="text-emerald-400" size={30} />
+        : uploadState === 'error'
+            ? <IconAlertTriangle className="text-destructive" size={30} />
+            : isBusy
+                ? <IconLoader2 className="text-primary animate-spin" size={30} />
+                : <IconCloudUpload className="text-primary" size={30} />;
+
+    return (
+        <div className="space-y-4">
+            <div
+                className={`bg-card rounded-xl border-2 border-dashed p-6 transition-all ${isBusy ? 'cursor-wait border-primary/50' : isDragging ? 'cursor-copy border-primary bg-primary/5' : 'cursor-pointer border-border hover:border-primary'}`}
+                onDragOver={(event) => {
+                    event.preventDefault();
+                    setIsDragging(true);
+                }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={(event) => {
+                    event.preventDefault();
+                    setIsDragging(false);
+
+                    if (!isBusy && event.dataTransfer.files[0]) {
+                        void handleFileUpload(event.dataTransfer.files[0]);
+                    }
+                }}
+                onClick={() => !isBusy && fileInputReference.current?.click()}
+            >
+                <input
+                    ref={fileInputReference}
+                    type="file"
+                    className="hidden"
+                    accept=".cast"
+                    onChange={(event) => {
+                        const file = event.target.files?.[0];
+
+                        if (file) {
+                            void handleFileUpload(file);
+                        }
+
+                        event.target.value = '';
+                    }}
+                />
+                <div className="flex flex-col items-center justify-center min-h-[200px]">
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">{icon}</div>
+                    <h3 className="text-foreground mb-2">{title}</h3>
+                    <p className={`text-sm text-center max-w-sm ${uploadState === 'error' ? 'text-destructive' : 'text-muted-foreground'}`}>{subtitle}</p>
+                    {!isBusy && uploadState !== 'success' && <span className="mt-4 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">Choose .cast file</span>}
+                </div>
+            </div>
+            {job && <UploadProgressPanel job={job} />}
         </div>
-
-        <h3 className="text-foreground mb-2">{cfg.title}</h3>
-        <p className={`text-sm text-center mb-4 ${uploadState === 'error' ? 'text-destructive/80' : 'text-muted-foreground'}`}>
-          {cfg.subtitle}
-        </p>
-
-        {cfg.badge}
-
-        {uploadState === 'idle' && (
-          <p className="text-xs text-muted-foreground mt-4">
-            Upload your terminal session recordings (e.g. asciinema .cast files)
-          </p>
-        )}
-      </div>
-    </div>
-  );
+    );
 }
